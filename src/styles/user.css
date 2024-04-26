@@ -1,0 +1,32 @@
+.card-div {
+  display: flex;
+  flex-direction: row;
+  font-size: calc(10px + 2vmin);
+  margin-top: 1rem;
+}
+
+.found-card-div {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  margin-top: 1rem;
+  padding-bottom: 2rem;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mb {
+  margin-bottom: 2rem;
+}
+
+.anta-regular {
+  font-family: "Anta", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
