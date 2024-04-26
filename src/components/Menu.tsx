@@ -206,12 +206,10 @@ export default function DropdownMenu({ connect: connectWallet}: NavbarProps) {
               Swal.getPopup()!.querySelector('output')!.style.display = 'none'
               inputRange.style.width = '100%'
     
-              // sync input[type=number] con input[type=range]
               inputRange.addEventListener('input', () => {
                 inputNumber.value = inputRange.value
               })
     
-              // sync input[type=range] con input[type=number]
               inputNumber.addEventListener('change', () => {
                 inputRange.value = inputNumber.value
               })
@@ -226,7 +224,7 @@ export default function DropdownMenu({ connect: connectWallet}: NavbarProps) {
         } else {
           Swal.fire({
             title: "Errore",
-            text: "Attenzione, attualmente sul contratto sono presenti meno di: " + minDonation + " ETH",
+            text: "Attenzione, il tuo bilancio è inferiore alla donazione minima di: " + minDonation + " ETH",
             showCloseButton: true
           })
         }
