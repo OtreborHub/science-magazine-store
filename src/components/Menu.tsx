@@ -217,8 +217,8 @@ export default function DropdownMenu({ connect: connectWallet}: NavbarProps) {
     
           }).then(async (result) => {
             if (result.isConfirmed && result.value > 0 && result.value < appContext.balance) {
-              withdraw(result.value);
-              // Swal.fire("Prelievo avvenuto con successo!", "", "success"); //LISTENER DONATION
+              donateETH(result.value);
+              // Swal.fire on Donation Event (contractBridge.ts)
             }
           })
         } else {

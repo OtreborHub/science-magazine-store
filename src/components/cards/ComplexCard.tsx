@@ -5,16 +5,15 @@ import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import axios from 'axios';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import '../../styles/card.css';
 import { buyMagazine } from '../../utilities/contractBridge';
+import { findMagazine } from '../../utilities/firebase';
 import { ComplexCardProps } from '../../utilities/interfaces';
 import { getCover } from '../../utilities/mock';
 import { formatReleaseDate } from '../../utilities/utils';
-
 
 export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardProps) {
   const valid = magazine.release_date > 0;
@@ -23,17 +22,31 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
   const [content, setContent] = useState<string>("");
   const IPFSBaseUrl = process.env.REACT_APP_IPFS_BASEURL;
   
+  // JSON-SERVER
+  // useEffect(() => {
+  //   axios.get("http://localhost:5000/magazines", { params: { address: magazine.address } })
+  //   .then(response => {
+  //     const magazines = response.data;
+  //     if(magazines.length === 1) {
+  //       setCover(magazines[0].cover);
+  //       setSummary(magazines[0].summary);
+  //       setContent(magazines[0].content);
+  //     }
+  //   })
+  // }, [])
+
+  // FIREBASE
   useEffect(() => {
-    axios.get("http://localhost:5000/magazines", { params: { address: magazine.address } })
-    .then(response => {
-      const magazines = response.data;
-      if(magazines.length === 1) {
-        setCover(magazines[0].cover);
-        setSummary(magazines[0].summary);
-        setContent(magazines[0].content);
-      }
-    })
+    findMagazine(magazine.address).then(
+      response => {
+        if(response.exists()) {
+          setCover(response.val().cover);
+          setSummary(response.val().summary);
+          setContent(response.val().content);
+        }
+      })
   }, [])
+
 
   const formatNumberAddress = (address: string) => {
     return address.substring(0, 7) + "..." + address.substring(address.length - 5, address.length)

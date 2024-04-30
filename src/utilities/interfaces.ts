@@ -1,6 +1,4 @@
-import { Provider } from "ethers";
 import { ErrorMessage } from "./error";
-import { Role } from "./role";
 
 interface NavbarProps {
     connect: () => void;

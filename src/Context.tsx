@@ -1,5 +1,5 @@
 import { Provider, ethers } from "ethers";
-import React, { createContext, useContext, ReactNode, useState } from "react";
+import { createContext, useContext, ReactNode, useState } from "react";
 import { Role } from "./utilities/role";
 
 const infuraProvider: Provider = new ethers.InfuraProvider("sepolia" , process.env.INFURA_API_KEY);

@@ -43,6 +43,12 @@ export default function SearchForm({ handleSearch, handleClear } : SearchProps) 
       handleClear(event);
     }
 
+    const search = (event: any) => {
+      handleClear(event);
+      setAddressValue("");
+      handleSearch(event);
+    }
+
     const BootstrapInput = styled(InputBase)(({ theme }) => ({
       'label + &': {
         marginTop: theme.spacing(2),
@@ -63,7 +69,7 @@ export default function SearchForm({ handleSearch, handleClear } : SearchProps) 
     }));
 
     return (
-        <form onSubmit={handleSearch}>
+        <form onSubmit={search}>
           <Grid container 
           paddingTop={"2rem"}
           paddingBottom={"2rem"} 

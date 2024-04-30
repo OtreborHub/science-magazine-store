@@ -176,7 +176,7 @@ export default function UserView({lastNumber, releasedNumbers}: UserProps) {
 
                     {/* src={lastNumber.cover} */}
                     <img className="last-number-cover"
-                    src={ lastNumber.cover ? getCover(lastNumber.cover) : ""} 
+                    src={ getCover(lastNumber.cover) } 
                     // src={"https://ipfs.io/ipfs/QmXhPXZowAWFLERm5xBL6AZLEabZLGwFppcHpUdSe4Ea9q"} 
                     // src={IPFSBaseUrl + lastNumber.cover} 
                     height={isMobile ? "350px" : "500px"}

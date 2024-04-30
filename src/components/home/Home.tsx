@@ -1,9 +1,9 @@
 import { Typography } from "@mui/material";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../Context";
 import '../../styles/home.css';
 import { emptyMagazine, getAllMagazines } from "../../utilities/contractBridge";
+import { findMagazine } from "../../utilities/firebase";
 import { Magazine } from '../../utilities/interfaces';
 import { Role } from "../../utilities/role";
 import AdminView from "./AdminView";
@@ -42,16 +42,29 @@ export default function Home() {
 
   }
 
+  // JSON-SERVER
+  // async function fillLastNumberData(number: Magazine) {
+  //   const response = await axios.get("http://localhost:5000/magazines", { params: { address: number.address } });
+  //   if(response) {
+  //     const lastNumber = response.data[0];
+  //     if(lastNumber){
+  //       number.cover = lastNumber.cover;
+  //       number.summary = lastNumber.summary;
+  //       number.content = lastNumber.content;
+  //     }
+  //   }
+  //   setLastNumber(number);
+  // }
+
+  // FIREBASE
   async function fillLastNumberData(number: Magazine) {
-    const response = await axios.get("http://localhost:5000/magazines", { params: { address: number.address } });
-    if(response) {
-      const lastNumber = response.data[0];
-      if(lastNumber){
-        number.cover = lastNumber.cover;
-        number.summary = lastNumber.summary;
-        number.content = lastNumber.content;
+    const response = await findMagazine(number.address);
+      if(response.exists()){
+        number.cover = response.val().cover;
+        number.summary = response.val().summary;
+        number.content = response.val().content;
       }
-    }
+
     setLastNumber(number);
   }
   

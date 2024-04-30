@@ -6,12 +6,11 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import { releaseMagazine } from '../../utilities/contractBridge';
+import { findMagazine, updateMagazine } from '../../utilities/firebase';
 import { Magazine } from '../../utilities/interfaces';
-// import pdf from '../../assets/Mag1.pdf';
 
 export default function SimpleCard({address, title, release_date}: Magazine) {
   const valid = release_date > 0;
@@ -23,17 +22,29 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
   const IPFSBaseUrl = process.env.REACT_APP_IPFS_BASEURL;
   // const isMobile = useMediaQuery('(max-width: 750px)');
 
+  // JSON-SERVER
+  // useEffect(() => {
+  //   axios.get("http://localhost:5000/magazines", { params: { address: address } })
+  //   .then(response => {
+  //     const magazines = response.data;
+  //     if(magazines.length === 1) {
+  //       setCover(magazines[0].cover);
+  //       setSummary(magazines[0].summary);
+  //       setContent(magazines[0].content);
+  //     }
+  //   });
+  // }, [])
+
+  // FIREBASE
   useEffect(() => {
-    
-    axios.get("http://localhost:5000/magazines", { params: { address: address } })
-    .then(response => {
-      const magazines = response.data;
-      if(magazines.length === 1) {
-        setCover(magazines[0].cover);
-        setSummary(magazines[0].summary);
-        setContent(magazines[0].content);
-      }
-    });
+    findMagazine(address).then(
+      response => {
+        if(response.exists()) {
+          setCover(response.val().cover);
+          setSummary(response.val().summary);
+          setContent(response.val().content);
+        }
+      })
   }, [])
 
   const formatNumberAddress = (address: string) => {
@@ -82,11 +93,12 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
         let coverURL = result.value.cover;
         let contentURL = result.value.content;
         let summary = result.value.summary;
-        // if(inputValidation(coverURL, contentURL, summary)){
-        if(mockValidation(coverURL, contentURL, summary)){
+        if(inputValidation(coverURL, contentURL, summary)){
           releaseMagazine(address).then((result) => {
             saveReleasedMagazine( coverURL, contentURL, summary );
           });
+        } else {
+          Swal.fire("Parametri di input non validi", "", "error");
         }
       }
 
@@ -95,56 +107,36 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
     console.log("release magazine: " + address);
   }
 
-  // function download() {
-  //   const cid = content.split("?")[0];
-  //   const name = content.split("?")[1];
-  //   console.log("Download file - cid: " + cid + " filename: " + name);
-  //   axios.get(IPFSBaseUrl + content)
-  //   .then(
-  //     (response) => {
-  //       if(response.status == 200){
-  //         console.log("download successfull");
-  //         response.data().then((blob:any) => {
-  //           let url = window.URL.createObjectURL(blob);
-  //           let a = document.createElement("a");
-  //           a.href = url;
-  //           a.download = `${name}.pdf`;
-  //           a.click();
-  //         });
-  //       }
-  //     }
-  //   ).catch(
-  //     (error) => {
-  //       console.log("Errore durante il download della copia: " + error);
-  //       Swal.fire({
-  //         title: "Qualcosa è andato storto!",
-  //         icon: "error",
-  //         text: "Si è verificato un errore durante il download della copia: Riprova più tardi.",
-  //         showConfirmButton: true,
-  //         confirmButtonColor: "#3085d6",
-  //       })
-  //     }
-  //   )
-  // }
-
   function read(){
-    // const cid = content.split("?")[0];
-    // const name = content.split("?")[1];
     const pdfUrl = IPFSBaseUrl + content;
+    const cid = content.split("?")[0];
+    const name = content.split("?")[1];
+    console.log("opening " + cid + " filename: " + name)
     window.open(pdfUrl, "_blank");
-
   }
 
+  // JSON-SERVER
+  // function saveReleasedMagazine(cover: string, content: string, summary: string){
+  //   axios.get('http://localhost:5000/magazines', { params: { address: address } }).then((response) => {
+  //     const magazine_id = response.data[0].id;
+  //     axios.put('http://localhost:5000/magazines/'+ magazine_id, 
+  //       { address: address, cover: cover, content: content, summary: summary },
+  //     ).then(response => {
+  //       console.log(response);
+  //     })
+  //     .catch(error => console.log("Impossibile salvare: " + error));
+  //   })
+  // }
 
+  // FIREBASE
   function saveReleasedMagazine(cover: string, content: string, summary: string){
-    axios.get('http://localhost:5000/magazines', { params: { address: address } }).then((response) => {
-      const magazine_id = response.data[0].id;
-      axios.put('http://localhost:5000/magazines/'+ magazine_id, 
-        { address: address, cover: cover, content: content, summary: summary },
-      ).then(response => {
-        console.log(response);
-      })
-      .catch(error => console.log("Impossibile salvare: " + error));
+    findMagazine(address).then((response) => {
+      if(response.exists()){
+        updateMagazine(address, cover, content, summary).then(response => {
+          console.log(response);
+        })
+        .catch(error => console.log("Impossibile salvare: " + error));
+      }
     })
   }
 
@@ -159,9 +151,9 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
     return false;
   }
 
-  const mockValidation = (cover: string, content: string, summary: string) => {
-    return true;
-  }
+  // const mockValidation = (cover: string, content: string, summary: string) => {
+  //   return true;
+  // }
 
   return (
     <Card sx={{boxShadow: "5px 5px #888888", border: "2px solid", borderColor: "black"}}>

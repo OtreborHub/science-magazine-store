@@ -6,9 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers/react'
 import { AppContextProvider } from './Context';
 
-// 1. Get projectId at https://cloud.walletconnect.com
 const projectId: string = process.env.REACT_APP_WC_PROJECT_ID as string;
-// const projectId: string = "20597169cb3abe1ca44b642e4916d405"
 
 const sepolia = {
   chainId: 11155111,

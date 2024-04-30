@@ -10,7 +10,9 @@ import Home from './components/home/Home';
 import getContractInstance, { readAdministrator, readContractBalance, readCustomer, readOwner } from "./utilities/contractBridge";
 import { ErrorMessage } from "./utilities/error";
 import { getRole } from "./utilities/role";
-import { heliaNode } from "./utilities/helia";
+import { firebaseInit } from "./utilities/firebase";
+// import { connectToDatabase } from "./db";
+// import { heliaNode } from "./utilities/helia";
 
 declare global {
   interface Window {
@@ -25,6 +27,8 @@ export default function App() {
   
   useEffect(() => {
     connectWallet();
+    firebaseInit();
+    // connectToDatabase();
     // heliaNode();
     //Events
     window.ethereum.on('chainChanged', handleChanges);

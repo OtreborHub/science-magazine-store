@@ -1,11 +1,12 @@
 import { Contract, Provider, ethers } from "ethers";
-import { contractABI } from "./abi";
-import { Magazine } from "./interfaces";
 import Swal from "sweetalert2";
-import axios from "axios";
-import { formatReleaseDate } from "./utils";
-import { ErrorMessage } from "./error";
 import { useAppContext } from "../Context";
+import { contractABI } from "./abi";
+import { ErrorMessage } from "./error";
+import { createMagazine } from "./firebase";
+import { Magazine } from "./interfaces";
+import { formatReleaseDate } from "./utils";
+// import { creaMagazine } from "../db";
 
 const CONTRACT_ADDRESS: string = process.env.REACT_APP_CONTRACT_ADDRESS as string;
 let contractInstance: Contract;
@@ -50,22 +51,41 @@ function addContractListeners() {
 
   //NUOVO MAGAZINE
   contractInstance.on("NewMagazine", (magazine_address, event) => {
-    axios.post('http://localhost:5000/magazines', { address: magazine_address, cover: "", content: "", summary: "" })
-      .then(response => {
-        Swal.fire({
-          title: "Nuovo numero!",
-          text: "Indirizzo del magazine: \n" + magazine_address + ". \nPremi OK per ricaricare la pagina",
-          icon: "success",
-          showConfirmButton: true,
-          confirmButtonColor: "#3085d6"
-        }).then((result) => {
-          if(result.isConfirmed){
-            window.location.reload();
-          }
-        });
 
-      })
-      .catch(error => console.log(error));
+    // JSON-SERVER
+    // axios.post('http://localhost:5000/magazines', { address: magazine_address, cover: "", content: "", summary: "" })
+    //   .then(response => {
+    //     Swal.fire({
+    //       title: "Nuovo numero!",
+    //       text: "Indirizzo del magazine: \n" + magazine_address + ". \nPremi OK per ricaricare la pagina",
+    //       icon: "success",
+    //       showConfirmButton: true,
+    //       confirmButtonColor: "#3085d6"
+    //     }).then((result) => {
+    //       if(result.isConfirmed){
+    //         window.location.reload();
+    //       }
+    //     });
+
+    //   })
+    //   .catch(error => console.log(error));
+
+    // FIREBASE
+    createMagazine(magazine_address).then(response => {
+      Swal.fire({
+        title: "Nuovo numero!",
+        text: "Indirizzo del magazine: \n" + magazine_address + ". \nPremi OK per ricaricare la pagina",
+        icon: "success",
+        showConfirmButton: true,
+        confirmButtonColor: "#3085d6"
+      }).then((result) => {
+        if(result.isConfirmed){
+          window.location.reload();
+        }
+      });
+
+    })
+    .catch(error => console.log(error));
   });
 
   //RILASCIO MAGAZINE
