@@ -42,6 +42,18 @@ export default function Home() {
 
   }
 
+  // FIREBASE
+  async function fillLastNumberData(number: Magazine) {
+    const response = await findMagazine(number.address);
+      if(response.exists()){
+        number.cover = response.val().cover;
+        number.summary = response.val().summary;
+        number.content = response.val().content;
+      }
+
+    setLastNumber(number);
+  }
+
   // JSON-SERVER
   // async function fillLastNumberData(number: Magazine) {
   //   const response = await axios.get("http://localhost:5000/magazines", { params: { address: number.address } });
@@ -56,18 +68,6 @@ export default function Home() {
   //   setLastNumber(number);
   // }
 
-  // FIREBASE
-  async function fillLastNumberData(number: Magazine) {
-    const response = await findMagazine(number.address);
-      if(response.exists()){
-        number.cover = response.val().cover;
-        number.summary = response.val().summary;
-        number.content = response.val().content;
-      }
-
-    setLastNumber(number);
-  }
-  
   return (
       <div className="main-div">
         <Typography 
@@ -87,6 +87,5 @@ export default function Home() {
           <AdminView notReleasedNumbers={notReleasedNumbers} releasedNumbers={releasedNumbers} />
         }
       </div>
-
   )
 }

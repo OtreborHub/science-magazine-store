@@ -12,16 +12,29 @@ import { releaseMagazine } from '../../utilities/contractBridge';
 import { findMagazine, updateMagazine } from '../../utilities/firebase';
 import { Magazine } from '../../utilities/interfaces';
 
+const IPFS_URL: string = process.env.REACT_APP_IPFS_BASEURL as string;
+
 export default function SimpleCard({address, title, release_date}: Magazine) {
   const valid = release_date > 0;
   
-  const [cover, setCover] = useState<string>("");
+  // const [cover, setCover] = useState<string>("");
   const [summary, setSummary] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
-  const IPFSBaseUrl = process.env.REACT_APP_IPFS_BASEURL;
   // const isMobile = useMediaQuery('(max-width: 750px)');
 
+  // FIREBASE
+  useEffect(() => {
+    findMagazine(address).then(
+      response => {
+        if(response.exists()) {
+          // setCover(response.val().cover);
+          setSummary(response.val().summary);
+          setContent(response.val().content);
+        }
+      })
+  }, [])
+  
   // JSON-SERVER
   // useEffect(() => {
   //   axios.get("http://localhost:5000/magazines", { params: { address: address } })
@@ -34,18 +47,6 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
   //     }
   //   });
   // }, [])
-
-  // FIREBASE
-  useEffect(() => {
-    findMagazine(address).then(
-      response => {
-        if(response.exists()) {
-          setCover(response.val().cover);
-          setSummary(response.val().summary);
-          setContent(response.val().content);
-        }
-      })
-  }, [])
 
   const formatNumberAddress = (address: string) => {
     return address.substring(0, 7) + "..." + address.substring(address.length - 5, address.length)
@@ -108,11 +109,23 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
   }
 
   function read(){
-    const pdfUrl = IPFSBaseUrl + content;
+    const pdfUrl = IPFS_URL + content;
     const cid = content.split("?")[0];
     const name = content.split("?")[1];
     console.log("opening " + cid + " filename: " + name)
     window.open(pdfUrl, "_blank");
+  }
+
+  // FIREBASE
+  function saveReleasedMagazine(cover: string, content: string, summary: string){
+    findMagazine(address).then((response) => {
+      if(response.exists()){
+        updateMagazine(address, cover, content, summary).then(response => {
+          console.log(response);
+        })
+        .catch(error => console.log("Impossibile salvare: " + error));
+      }
+    })
   }
 
   // JSON-SERVER
@@ -128,32 +141,11 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
   //   })
   // }
 
-  // FIREBASE
-  function saveReleasedMagazine(cover: string, content: string, summary: string){
-    findMagazine(address).then((response) => {
-      if(response.exists()){
-        updateMagazine(address, cover, content, summary).then(response => {
-          console.log(response);
-        })
-        .catch(error => console.log("Impossibile salvare: " + error));
-      }
-    })
-  }
-
   const inputValidation = (cover: string, content: string, summary: string) => {
-    if(cover !== "" && content !== "" && summary !== "" &&
-      cover.toString().includes("http") && 
-      content.toString().includes("http") &&
-      cover.toString().includes("ipfs") &&
-      content.toString().includes("ipfs")){
-        return true;
-      }
-    return false;
+    const isValidUrl = (url: string) => url !== "" && url.includes(IPFS_URL) && url.includes("?filename");
+  
+    return isValidUrl(cover) && isValidUrl(content) && summary !== "";
   }
-
-  // const mockValidation = (cover: string, content: string, summary: string) => {
-  //   return true;
-  // }
 
   return (
     <Card sx={{boxShadow: "5px 5px #888888", border: "2px solid", borderColor: "black"}}>

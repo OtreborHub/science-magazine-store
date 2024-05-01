@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import { useAppContext } from "../Context";
 import { contractABI } from "./abi";
 import { ErrorMessage } from "./error";
-import { createMagazine } from "./firebase";
+import { createMagazine, updateMagazine } from "./firebase";
 import { Magazine } from "./interfaces";
 import { formatReleaseDate } from "./utils";
 // import { creaMagazine } from "../db";
@@ -51,48 +51,32 @@ function addContractListeners() {
 
   //NUOVO MAGAZINE
   contractInstance.on("NewMagazine", (magazine_address, event) => {
-
     // JSON-SERVER
     // axios.post('http://localhost:5000/magazines', { address: magazine_address, cover: "", content: "", summary: "" })
-    //   .then(response => {
-    //     Swal.fire({
-    //       title: "Nuovo numero!",
-    //       text: "Indirizzo del magazine: \n" + magazine_address + ". \nPremi OK per ricaricare la pagina",
-    //       icon: "success",
-    //       showConfirmButton: true,
-    //       confirmButtonColor: "#3085d6"
-    //     }).then((result) => {
-    //       if(result.isConfirmed){
-    //         window.location.reload();
-    //       }
-    //     });
-
-    //   })
-    //   .catch(error => console.log(error));
-
     // FIREBASE
-    createMagazine(magazine_address).then(response => {
-      Swal.fire({
-        title: "Nuovo numero!",
-        text: "Indirizzo del magazine: \n" + magazine_address + ". \nPremi OK per ricaricare la pagina",
-        icon: "success",
-        showConfirmButton: true,
-        confirmButtonColor: "#3085d6"
-      }).then((result) => {
-        if(result.isConfirmed){
-          window.location.reload();
-        }
-      });
-
-    })
-    .catch(error => console.log(error));
+    createMagazine(magazine_address)
+      .then(response => {
+        Swal.fire({
+          title: "Nuovo numero!",
+          text: "Indirizzo del magazine: \n" + magazine_address + ". \nPremi OK per ricaricare la pagina",
+          icon: "success",
+          showConfirmButton: true,
+          confirmButtonColor: "#3085d6"
+        }).then((result) => {
+          if(result.isConfirmed){
+            window.location.reload();
+          }
+        });
+      })
+      .catch(error => console.log(error));
   });
 
   //RILASCIO MAGAZINE
   contractInstance.on("ReleaseMagazine", (magazine_address, event) => {
+    //Update verso Firebase eseguito in simpleCard
     Swal.fire({
       title: "Nuovo numero rilasciato!",
-      text: "Indirizzo del magazine: " + magazine_address + "\n. Premi OK per ricaricare la pagina",
+      text: "Indirizzo del magazine: " + magazine_address + "\n. Attendi qualche istante poi premi OK per ricaricare la pagina",
       icon: "success",
       showConfirmButton: true,
       confirmButtonColor: "#3085d6"
@@ -103,7 +87,7 @@ function addContractListeners() {
     });
     
 
-    // //DONAZIONE
+    //DONAZIONE
     contractInstance.on("Donation", (customer, value, event) => {
       const signer = useAppContext().signer;
       if(customer === signer){
@@ -125,7 +109,7 @@ export async function getAllMagazines(): Promise<ContractResponse<Magazine>> {
   var magazines: Magazine[] = [];
   let lastIndex = 0;
   const FROM = 0;
-  const TO = 7;
+  const TO = 12;
   try {
     if (contractInstance) {
       //Chiamare il countMagazine prima per determinare quanti magazine far comparire in home page

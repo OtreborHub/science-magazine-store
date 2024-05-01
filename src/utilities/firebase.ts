@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { Database, DatabaseReference, child, getDatabase, ref, set, get } from "firebase/database";
+import { Database, DatabaseReference, child, getDatabase, ref, set, get, update } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBLaXHqeS0rpdroaUOyJ-npB9X2Gv8vB-g",
@@ -34,12 +34,8 @@ async function findMagazine(address:string){
   return await get(child(schema, address));
 }
 
-async function findAllMagazines(){
-  return await get(child(schema, ""));
-}
-
 async function updateMagazine(address: string, cover: string, content: string, summary: string){
-  return await set(ref(db, "magazines/" + address), {
+  return await update(ref(db, "magazines/" + address), {
     cover: cover,
     content: content,
     summary: summary
@@ -47,4 +43,5 @@ async function updateMagazine(address: string, cover: string, content: string, s
 
 }
 
-export { firebaseInit, db, createMagazine, findMagazine, findAllMagazines, updateMagazine }
+
+export { firebaseInit, db, createMagazine, findMagazine, updateMagazine }

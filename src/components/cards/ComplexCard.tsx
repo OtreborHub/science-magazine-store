@@ -15,13 +15,26 @@ import { ComplexCardProps } from '../../utilities/interfaces';
 import { getCover } from '../../utilities/mock';
 import { formatReleaseDate } from '../../utilities/utils';
 
+const IPFS_URL: string = process.env.REACT_APP_IPFS_BASEURL as string;
+
 export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardProps) {
   const valid = magazine.release_date > 0;
   const [cover, setCover] = useState<string>("");
   const [summary, setSummary] = useState<string>("");
   const [content, setContent] = useState<string>("");
-  const IPFSBaseUrl = process.env.REACT_APP_IPFS_BASEURL;
   
+  // FIREBASE
+  useEffect(() => {
+    findMagazine(magazine.address).then(
+      response => {
+        if(response.exists()) {
+          setCover(response.val().cover);
+          setSummary(response.val().summary);
+          setContent(response.val().content);
+        }
+      })
+  }, [])
+
   // JSON-SERVER
   // useEffect(() => {
   //   axios.get("http://localhost:5000/magazines", { params: { address: magazine.address } })
@@ -35,23 +48,9 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
   //   })
   // }, [])
 
-  // FIREBASE
-  useEffect(() => {
-    findMagazine(magazine.address).then(
-      response => {
-        if(response.exists()) {
-          setCover(response.val().cover);
-          setSummary(response.val().summary);
-          setContent(response.val().content);
-        }
-      })
-  }, [])
-
-
   const formatNumberAddress = (address: string) => {
     return address.substring(0, 7) + "..." + address.substring(address.length - 5, address.length)
   }
-
 
   const formatETH = () => {
     return ethers.formatEther(singlePrice);
@@ -73,11 +72,11 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
   }
 
   function read(){
-    // const cid = content.split("?")[0];
-    // const name = content.split("?")[1];
-    const pdfUrl = IPFSBaseUrl + content;
+    const pdfUrl = IPFS_URL + content;
+    const cid = content.split("?")[0];
+    const name = content.split("?")[1];
+    console.log("opening " + cid + " filename: " + name)
     window.open(pdfUrl, "_blank");
-
   }
 
   const subheader = 
