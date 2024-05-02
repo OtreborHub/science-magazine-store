@@ -34,7 +34,7 @@ export default function Home() {
         return number;
       });
     
-    if (appContext.role === Role.CUSTOMER || appContext.role === Role.VISITOR) {
+    if ((appContext.role === Role.CUSTOMER || appContext.role === Role.VISITOR) && lastNumber.address) {
       await fillLastNumberData(lastNumber);
     }
     setReleasedNumbers(releasedNumbers);
