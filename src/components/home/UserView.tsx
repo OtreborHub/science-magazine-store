@@ -14,13 +14,15 @@ import { formatNumberAddress, formatReleaseDate } from '../../utilities/utils';
 import ComplexCard from "../cards/ComplexCard";
 import SearchForm from '../SearchForm';
 
+const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
+
 export default function UserView({lastNumber, releasedNumbers}: UserProps) {
     const [singlePrice, setSinglePrice] = useState<number>(0.00);
     const [annualPrice, setAnnualPrice] = useState<number>(0.00);
     const [radioValue, setRadioValue] = useState('annual');
-    
-		const [searchedMagazines, setSearchedMagazined] = useState<Magazine[]>([]);
-		const [searchMine, setSearchMine] = useState<boolean>(false);
+
+    const [searchedMagazines, setSearchedMagazined] = useState<Magazine[]>([]);
+    const [searchMine, setSearchMine] = useState<boolean>(false);
 
     const searchContext = useSearchContext();
     const isMobile = useMediaQuery('(max-width: 750px)');
@@ -174,15 +176,11 @@ export default function UserView({lastNumber, releasedNumbers}: UserProps) {
                     xl={6}
                     textAlign={"center"}>
 
-                    {/* src={lastNumber.cover} */}
-                    <img className="last-number-cover"
-                    src={ getCover(lastNumber.cover) } 
-                    // src={"https://ipfs.io/ipfs/QmXhPXZowAWFLERm5xBL6AZLEabZLGwFppcHpUdSe4Ea9q"} 
-                    // src={IPFSBaseUrl + lastNumber.cover} 
-                    height={isMobile ? "350px" : "500px"}
-                    alt="Ultima uscita" 
-                    />
-
+                        <img className="last-number-cover"
+                        src={ getCover(lastNumber.cover) } 
+                        height={isMobile ? "350px" : "500px"}
+                        alt="Ultima uscita" />
+                        
                 </Grid>
                 <Grid item
                     // border={1}
@@ -303,7 +301,7 @@ export default function UserView({lastNumber, releasedNumbers}: UserProps) {
         </Box>
 
         {/* Ricerca */}
-        <Typography id="search-ref" className='anta-regular' variant="h3" textAlign={"center"}> ...O cerca il tuo preferito </Typography>
+        <Typography id="search-ref" className='anta-regular' variant="h3" textAlign={"center"} sx={{ cursor: 'default' }}> ...O cerca il tuo preferito </Typography>
         <SearchForm handleSearch={handleSearch} handleClear={handleClear}/>
         <div className="found-card-div">
             <Grid container spacing={isMobile? 4 : 2} sx={{ margin: "1rem", marginRight: "2rem"}}>

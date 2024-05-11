@@ -5,9 +5,10 @@ import mag4 from '../assets/Mag4.png';
 import mag5 from '../assets/Mag5.png';
 import mag_not_found from '../assets/Cover_not_found.png';
 
+const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
 
 const getCover = (cover: string) => {
-  if(cover.length > 0){
+  if(cover.length > 0 && cover.includes(IPFSBaseUrl)){
     let filename = cover.split("?filename=")[1].split(".")[0];
     switch(filename){
       case "Cover_Mag1":
@@ -21,10 +22,30 @@ const getCover = (cover: string) => {
       case "Cover_Mag5":
         return mag5;
       default:
-        return mag_not_found;
+        return cover;
+        // return fetchCover(cover);
     }
   }
-    return mag_not_found;
-  }
+
+  return mag_not_found;
+}
+
+// async function fetchCover(cover: string) {
+//   return fetch(cover)
+//     .then((response) => {
+//       if (response.ok && response.body) {
+//         return response.blob();
+//       } else {
+//         throw new Error('Network response was not ok.');
+//       }
+//     })
+//     .then((blob) => {
+//       return URL.createObjectURL(blob);
+//     })
+//     .catch((error) => {
+//       console.error('There has been a problem with your fetch operation:', error);
+//       return mag_not_found;
+//     });
+// }
 
 export { getCover }

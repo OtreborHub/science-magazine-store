@@ -15,7 +15,7 @@ import { ComplexCardProps } from '../../utilities/interfaces';
 import { getCover } from '../../utilities/mock';
 import { formatReleaseDate } from '../../utilities/utils';
 
-const IPFS_URL: string = process.env.REACT_APP_IPFS_BASEURL as string;
+const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
 
 export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardProps) {
   const valid = magazine.release_date > 0;
@@ -72,7 +72,7 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
   }
 
   function read(){
-    const pdfUrl = IPFS_URL + content;
+    const pdfUrl = IPFSBaseUrl + content;
     const cid = content.split("?")[0];
     const name = content.split("?")[1];
     console.log("opening " + cid + " filename: " + name)
@@ -117,9 +117,8 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
         sx={{ minHeight: "550px"}}
         component="img"
         // height="500"
-        // image={cover}
         image={getCover(cover)}
-        alt="Titolo da blockchain"
+        alt="Immagine di copertina"
       />
       <CardContent>
         <Typography variant="body2" color="text.secondary">

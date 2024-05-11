@@ -75,7 +75,8 @@ export default function Home() {
           variant="h2" 
           paddingTop={"3rem"} 
           paddingBottom={"3rem"} 
-          textAlign={"center"}>
+          textAlign={"center"}
+          sx={{ cursor: 'default' }}>
           TECHNOLOGY INNOVATION
         </Typography>
 

@@ -12,7 +12,7 @@ import { releaseMagazine } from '../../utilities/contractBridge';
 import { findMagazine, updateMagazine } from '../../utilities/firebase';
 import { Magazine } from '../../utilities/interfaces';
 
-const IPFS_URL: string = process.env.REACT_APP_IPFS_BASEURL as string;
+const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
 
 export default function SimpleCard({address, title, release_date}: Magazine) {
   const valid = release_date > 0;
@@ -109,7 +109,7 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
   }
 
   function read(){
-    const pdfUrl = IPFS_URL + content;
+    const pdfUrl = IPFSBaseUrl + content;
     const cid = content.split("?")[0];
     const name = content.split("?")[1];
     console.log("opening " + cid + " filename: " + name)
@@ -142,7 +142,7 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
   // }
 
   const inputValidation = (cover: string, content: string, summary: string) => {
-    const isValidUrl = (url: string) => url !== "" && url.includes(IPFS_URL) && url.includes("?filename");
+    const isValidUrl = (url: string) => url !== "" && url.includes(IPFSBaseUrl) && url.includes("?filename");
   
     return isValidUrl(cover) && isValidUrl(content) && summary !== "";
   }

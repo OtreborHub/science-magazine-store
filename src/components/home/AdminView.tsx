@@ -39,8 +39,6 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
     })
   }
 
-
-
   const handleSearch = (event: any) => {
     let magazine_address = event.target.address.value;
     if(magazine_address !== ""){
@@ -70,11 +68,10 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
     setSearchedMagazine(emptyMagazine);
   }
 
-
   return (
     <>
       {/* NUMERI DA RILASCIARE */}
-      <Typography variant="h4" textAlign={"left"} marginLeft={"2rem"} fontFamily={"sans-serif"}> Numeri da rilasciare</Typography>
+      <Typography variant="h4" textAlign={"left"} marginLeft={"2rem"} fontFamily={"sans-serif"} sx={{ cursor: 'default' }}> Numeri da rilasciare</Typography>
       <Box className="card-div" paddingBottom={"2rem"}>
         <Grid container spacing={isMobile ? 4 : 2} sx={{ margin: "1rem" }}>
           {notReleasedNumbers.map(el =>
@@ -107,7 +104,7 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
       </Box>
 
       {/* NUMERI RILASCIATI */}
-      <Typography variant="h4" textAlign={"left"} marginLeft={"2rem"} fontFamily={"sans-serif"}> Numeri rilasciati</Typography>
+      <Typography variant="h4" textAlign={"left"} marginLeft={"2rem"} fontFamily={"sans-serif"} sx={{ cursor: 'default' }}> Numeri rilasciati</Typography>
       <Box className="card-div" paddingBottom={"2rem"}>
         <Grid container spacing={isMobile ? 4 : 2} sx={{ margin: "1rem" }}>
           {releasedNumbers.map(el =>
@@ -125,8 +122,8 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
         </Grid>
       </Box>
 
-      {/* Ricerca */}
-      <Typography className='anta-regular' variant="h3" textAlign={"center"}> Ricerca per indirizzo </Typography>
+      {/* RICERCA */}
+      <Typography className='anta-regular' variant="h3" textAlign={"center"} sx={{ cursor: 'default' }}> Ricerca per indirizzo </Typography>
       <SearchForm handleSearch={handleSearch} handleClear={handleClear}/>
       <div id="found-card" className="found-card-div">
           {searchedMagazine !== emptyMagazine &&

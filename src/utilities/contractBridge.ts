@@ -44,7 +44,17 @@ function addContractListeners() {
   contractInstance.on("SubscriptionOrder", (customer, expire_date, event) => {
     const signer = useAppContext().signer;
     if (customer === signer) {
-      Swal.fire('Abbonamento effettuato', "Il tuo abbonamento scadra il: " + formatReleaseDate(expire_date), 'success');
+      Swal.fire({
+        title: "Abbonamento effettuato!",
+        text: "Il tuo abbonamento scadra il: " + formatReleaseDate(expire_date) + ". \nPremi OK per ricaricare la pagina",
+        icon: "success",
+        showConfirmButton: true,
+        confirmButtonColor: "#3085d6"
+      }).then((result) => {
+        if(result.isConfirmed){
+          window.location.reload();
+        }
+      });
       console.log("Subscription Order Event: { cliente: " + customer + ", expire_date: " + expire_date + "}");
     }
   });
