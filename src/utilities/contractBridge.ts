@@ -5,7 +5,7 @@ import { contractABI } from "./abi";
 import { ErrorMessage } from "./error";
 import { createMagazine, findMagazine, updateMagazine } from "./firebase";
 import { Magazine } from "./interfaces";
-import { formatReleaseDate } from "./utils";
+import { formatExpireDate, formatReleaseDate } from "./utils";
 
 const CONTRACT_ADDRESS: string = process.env.REACT_APP_CONTRACT_ADDRESS as string;
 let contractInstance: Contract;
@@ -55,17 +55,16 @@ function addContractListeners(signer: string) {
     if (customer === signer) {
       Swal.fire({
         title: "Abbonamento effettuato!",
-        text: "Il tuo abbonamento scadra il: " + formatReleaseDate(expire_date) + ". \nPremi OK per ricaricare la pagina",
+        text: "Il tuo abbonamento scadra il: " + formatExpireDate(Number(expire_date)) + ". \nPremi OK per ricaricare la pagina",
         icon: "success",
         showConfirmButton: true,
         confirmButtonColor: "#3085d6"
-      })
-      // .then((result) => {
-      //   if(result.isConfirmed){
-      //     window.location.reload();
-      //   }
-      // });
-      console.log("Subscription Order Event: { cliente: " + customer + ", expire_date: " + expire_date + "}");
+      }).then((result) => {
+        if(result.isConfirmed){
+          window.location.reload();
+        }
+      });
+      // console.log("Subscription Order Event: { cliente: " + customer + ", expire_date: " + expire_date + "}");
     }
   });
 
@@ -95,7 +94,7 @@ function addContractListeners(signer: string) {
     //Update verso Firebase eseguito in simpleCard
     Swal.fire({
       title: "Nuovo numero rilasciato!",
-      text: "Indirizzo del magazine: " + magazine_address + "\n. Attendi qualche istante poi premi OK per ricaricare la pagina",
+      text: "Indirizzo del magazine: " + magazine_address + "\n.Premi OK per ricaricare la pagina",
       icon: "success",
       showConfirmButton: true,
       confirmButtonColor: "#3085d6"
@@ -369,7 +368,7 @@ export async function revokeSubscription() {
       const signer = await provider.getSigner();
       const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
   
-      return await signerContract.revokeSubscription();
+      return await signerContract.revokeSubscribe();
 
     } catch (error) {
       console.log("annualSubscribe action: " + ErrorMessage.TR);

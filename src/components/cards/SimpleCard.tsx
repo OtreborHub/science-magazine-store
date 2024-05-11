@@ -101,8 +101,6 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
           setIsLoading(true);
           releaseMagazine(address).then((result) => {
             saveReleasedMagazine( coverURL, contentURL, summary );
-          setIsLoading(false);
-
           });
         } else {
           Swal.fire("Parametri di input non validi", "", "error");
@@ -128,6 +126,7 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
       if(response.exists()){
         updateMagazine(address, cover, content, summary).then(response => {
           console.log(response);
+          setIsLoading(false);
         })
         .catch(error => console.log("Impossibile salvare: " + error));
       }

@@ -6,6 +6,12 @@ export const formatReleaseDate = (release_date: number) => {
     .replaceAll("/", "-");
 }
 
+export const formatExpireDate = (release_date: number) => {
+    return new Date(release_date * 1000)
+    .toLocaleDateString("it-IT", {year: "numeric", day: "2-digit", month: "2-digit"})
+    .replaceAll("/", "-");
+}
+
 export const formatNumberAddress = (address: string) => {
     return address.substring(0, 8) + "..." + address.substring(address.length - 5, address.length)
 }

@@ -3,6 +3,6 @@ export enum ErrorMessage {
     SP="Please connect your provider to Sepolia Testnet",
     DFT="Something went Wrong!",
     RD="Error reading contract data",
-    TR="Transcation refused"
+    TR="Transaction refused"
 }
 

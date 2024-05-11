@@ -174,8 +174,8 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
           setIsLoading(true);
           revokeSubscription().then((res)=> {
             setIsLoading(false);
+            Swal.fire("A presto!", "", 'success');
           });
-          Swal.fire("A presto!", "", 'success');
         }
       })
     }
@@ -183,11 +183,11 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
 
   function donate() {
     if (appContext.balance > 0) {
-        let minDonation = 0.002;
+        let minDonation = 0.0002;
         let balance = appContext.balance;
         if (balance > 0 && balance > minDonation) {
-          const inputValue = 0.0000
-          const inputStep = 0.0001
+          const inputValue = 0.0002
+          const inputStep = 0.00001
           const placeholder = "Max " + balance.toFixed(4) + " ETH";
     
           Swal.fire({
