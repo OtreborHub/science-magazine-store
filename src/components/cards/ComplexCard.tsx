@@ -14,6 +14,7 @@ import { findMagazine } from '../../utilities/firebase';
 import { ComplexCardProps } from '../../utilities/interfaces';
 import { getCover } from '../../utilities/mock';
 import { formatReleaseDate } from '../../utilities/utils';
+import Loader from '../Loader';
 
 const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
 
@@ -22,6 +23,8 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
   const [cover, setCover] = useState<string>("");
   const [summary, setSummary] = useState<string>("");
   const [content, setContent] = useState<string>("");
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   
   // FIREBASE
   useEffect(() => {
@@ -66,7 +69,10 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
       showCloseButton: true
     }).then(async (result) => {
       if (result.isConfirmed) {
-          buyMagazine(magazine.address, singlePrice)
+        setIsLoading(true);
+        buyMagazine(magazine.address, singlePrice).then((res) => {
+          setIsLoading(false);
+        })
       }
     })
   }
@@ -99,9 +105,10 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
 
 
   return (
+    <>
     <Card 
     sx={{
-    maxWidth: "550px",
+    maxWidth: "500px",
     borderColor: "black", 
     transition: "0.3s",
     '&:hover': { 
@@ -136,5 +143,7 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
         </Button>
       </CardActions>
     </Card>
+    <Loader loading={isLoading}/>
+    </>
   );
 }

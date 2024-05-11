@@ -9,7 +9,7 @@ import DropdownMenu from './Menu';
 import { useAppContext } from '../Context';
 
 
-export default function Navbar({connect: connectWallet}: NavbarProps) {
+export default function Navbar({connect: connectWallet, signer}: NavbarProps) {
 // export default function Navbar({provider, signer, role, balance, contractBalance, connect: connectWallet}: NavbarProps) {
   const appContext = useAppContext();
 
@@ -23,11 +23,11 @@ export default function Navbar({connect: connectWallet}: NavbarProps) {
             <Typography variant="body1" component="div" color="#e0e012" sx={{ flexGrow: 1 }}>
               <DropdownMenu 
                   // provider={provider}
-                  // signer={signer}
+                  connect={connectWallet}
+                  signer={signer}
                   // balance={balance}
                   // contractBalance={contractBalance}
                   // role={role}
-                  connect={connectWallet}
                   />
 
             </Typography>

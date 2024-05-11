@@ -1,5 +1,5 @@
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { Box, Button, Grid, Typography, useMediaQuery } from "@mui/material";
+import { Backdrop, Box, Button, CircularProgress, Grid, Typography, useMediaQuery } from "@mui/material";
 import Swal from "sweetalert2";
 import '../../styles/user.css';
 import { addMagazine, emptyMagazine, readMagazineByAddress } from "../../utilities/contractBridge";
@@ -8,10 +8,12 @@ import SimpleCard from "../cards/SimpleCard";
 import SearchForm from '../SearchForm';
 import { useEffect, useState } from 'react';
 import ComplexCard from '../cards/ComplexCard';
+import Loader from '../Loader';
 
 export default function AdminView({ notReleasedNumbers, releasedNumbers }: AdminProps) {
   const isMobile = useMediaQuery('(max-width: 750px)');
   const [searchedMagazine, setSearchedMagazine] = useState<Magazine>(emptyMagazine);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if(searchedMagazine !== emptyMagazine){
@@ -34,7 +36,9 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
       showCancelButton: true
     }).then(async (result) => {
       if (result.value !== "" && result.isConfirmed) {
-        addMagazine(result.value);
+        setIsLoading(true);
+        await addMagazine(result.value);
+        setIsLoading(false);
       }
     })
   }
@@ -42,11 +46,14 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
   const handleSearch = (event: any) => {
     let magazine_address = event.target.address.value;
     if(magazine_address !== ""){
+      setIsLoading(true);
       readMagazineByAddress(magazine_address).then((response) => {
         let magazines = response.responseMagazines;
         if(magazines.length > 0){
           setSearchedMagazine(magazines[0]);
+          setIsLoading(false);
         } else {
+          setIsLoading(false);
           swalError();    
         }
       });
@@ -69,6 +76,7 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
   }
 
   return (
+
     <>
       {/* NUMERI DA RILASCIARE */}
       <Typography variant="h4" textAlign={"left"} marginLeft={"2rem"} fontFamily={"sans-serif"} sx={{ cursor: 'default' }}> Numeri da rilasciare</Typography>
@@ -133,6 +141,9 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
                       owned={true}/>
           }
       </div>
+
+      <Loader loading={isLoading}/>
+
     </>
   );
 }

@@ -3,10 +3,9 @@ import Swal from "sweetalert2";
 import { useAppContext } from "../Context";
 import { contractABI } from "./abi";
 import { ErrorMessage } from "./error";
-import { createMagazine, updateMagazine } from "./firebase";
+import { createMagazine, findMagazine, updateMagazine } from "./firebase";
 import { Magazine } from "./interfaces";
 import { formatReleaseDate } from "./utils";
-// import { creaMagazine } from "../db";
 
 const CONTRACT_ADDRESS: string = process.env.REACT_APP_CONTRACT_ADDRESS as string;
 let contractInstance: Contract;
@@ -18,31 +17,41 @@ type ContractResponse<T> = {
 
 export const emptyMagazine: Magazine = { address: "", title: "", release_date: 0, content: "", cover: "", summary: "" }
 
-export default function getContractInstance(provider: Provider) {
+export default function getContractInstance(provider: Provider, signer: string) {
   if (!contractInstance) {
     contractInstance = new Contract(CONTRACT_ADDRESS, contractABI, provider);
-    addContractListeners();
+    addContractListeners(signer);
   }
 }
 
 //EVENTS 
-function addContractListeners() {
-
+function addContractListeners(signer: string) {
   //ACQUISTA MAGAZINE
   contractInstance.on("BuyOrder", (customer, magazine_address, event) => {
-    const signer = useAppContext().signer;
     if (customer === signer) {
-      //Fare query a DB per risorsa IPFS con magazine_address
-      let value = "--URL IPFS--"
-      Swal.fire('Ordine ricevuto!', "puoi visitare il numero che hai appena acquistato qui: " + value, 'success');
-      console.log("Buy Order Event: { magazine_address: " + magazine_address + "}");
+      // JSON-SERVER
+      // axios.get('http://localhost:5000/magazines', { address: magazine_address })
+      // FIREBASE
+      findMagazine(magazine_address).then((response) => {
+        if(response.exists()){
+          let ipfsURL = response.val().content;
+
+          Swal.fire({
+            title: "Ordine ricevuto!",
+            text: "Puoi visitare il numero che hai appena acquistato qui: \n" + ipfsURL,
+            icon: "success",
+            showConfirmButton: true,
+            confirmButtonColor: "#3085d6"
+          });
+          console.log("Buy Order Event: { magazine_address: " + magazine_address + "}");
+        }
+      });
     }
 
   });
 
   //ABBONAMENTO
   contractInstance.on("SubscriptionOrder", (customer, expire_date, event) => {
-    const signer = useAppContext().signer;
     if (customer === signer) {
       Swal.fire({
         title: "Abbonamento effettuato!",
@@ -50,11 +59,12 @@ function addContractListeners() {
         icon: "success",
         showConfirmButton: true,
         confirmButtonColor: "#3085d6"
-      }).then((result) => {
-        if(result.isConfirmed){
-          window.location.reload();
-        }
-      });
+      })
+      // .then((result) => {
+      //   if(result.isConfirmed){
+      //     window.location.reload();
+      //   }
+      // });
       console.log("Subscription Order Event: { cliente: " + customer + ", expire_date: " + expire_date + "}");
     }
   });
@@ -64,8 +74,7 @@ function addContractListeners() {
     // JSON-SERVER
     // axios.post('http://localhost:5000/magazines', { address: magazine_address, cover: "", content: "", summary: "" })
     // FIREBASE
-    createMagazine(magazine_address)
-      .then(response => {
+    createMagazine(magazine_address).then(response => {
         Swal.fire({
           title: "Nuovo numero!",
           text: "Indirizzo del magazine: \n" + magazine_address + ". \nPremi OK per ricaricare la pagina",
@@ -99,7 +108,6 @@ function addContractListeners() {
 
     //DONAZIONE
     contractInstance.on("Donation", (customer, value, event) => {
-      const signer = useAppContext().signer;
       if(customer === signer){
           Swal.fire({
             title: "Nuova donazione!",

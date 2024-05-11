@@ -84,7 +84,7 @@ export default function App() {
   }
 
   async function init(signer: string) {
-      getContractInstance(appContext.provider);
+      getContractInstance(appContext.provider, signer);
       
       readContractBalance().then((result) => {
         appContext.updateContractBalance((Number(result)));
@@ -124,7 +124,7 @@ export default function App() {
   return (
     <div className="App">
 
-      <Navbar connect={connectWallet}/>
+      <Navbar connect={connectWallet} signer={appContext.signer}/>
       { appContext.signer && appContext.chainId === SEPOLIA_CHAIN_ID && <Home /> }
       { !appContext.signer && <Error errorMessage={ErrorMessage.WL}/> }
       { appContext.signer && appContext.chainId !== SEPOLIA_CHAIN_ID && <Error errorMessage={ErrorMessage.SP}/> }

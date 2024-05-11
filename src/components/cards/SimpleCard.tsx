@@ -11,6 +11,7 @@ import Swal from 'sweetalert2';
 import { releaseMagazine } from '../../utilities/contractBridge';
 import { findMagazine, updateMagazine } from '../../utilities/firebase';
 import { Magazine } from '../../utilities/interfaces';
+import Loader from '../Loader';
 
 const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
 
@@ -23,6 +24,8 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
   const [copied, setCopied] = useState<boolean>(false);
   // const isMobile = useMediaQuery('(max-width: 750px)');
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  
   // FIREBASE
   useEffect(() => {
     findMagazine(address).then(
@@ -95,8 +98,11 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
         let contentURL = result.value.content;
         let summary = result.value.summary;
         if(inputValidation(coverURL, contentURL, summary)){
+          setIsLoading(true);
           releaseMagazine(address).then((result) => {
             saveReleasedMagazine( coverURL, contentURL, summary );
+          setIsLoading(false);
+
           });
         } else {
           Swal.fire("Parametri di input non validi", "", "error");
@@ -148,6 +154,7 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
   }
 
   return (
+    <>
     <Card sx={{boxShadow: "5px 5px #888888", border: "2px solid", borderColor: "black"}}>
       <CardHeader
         title={title}
@@ -196,6 +203,8 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
         }
       </CardActions>
     </Card>
+    <Loader loading={isLoading}/>
+    </>
   );
 
 }

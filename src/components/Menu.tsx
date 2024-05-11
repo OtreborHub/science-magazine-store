@@ -12,14 +12,17 @@ import { useSearchContext } from '../Context';
 import { useAppContext } from '../Context';
 import { formatBalance } from '../utilities/utils';
 import { ethers } from 'ethers';
+import Loader from './Loader';
 
-export default function DropdownMenu({ connect: connectWallet}: NavbarProps) {
+export default function DropdownMenu({ connect: connectWallet, signer}: NavbarProps) {
     const [hasSubscription, setHasSubscription] = useState<boolean>(false)
     const searchContext = useSearchContext();
     const appContext = useAppContext();
 
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
     useEffect(() => {
-      getContractInstance(appContext.provider);
+      getContractInstance(appContext.provider, signer);
       if(appContext.role === Role.CUSTOMER){
         getSubscription();
       }
@@ -91,7 +94,10 @@ export default function DropdownMenu({ connect: connectWallet}: NavbarProps) {
 
       }).then(async (result) => {
         if (result.isConfirmed && result.value > 0 && result.value < appContext.contractBalance) {
-          withdraw(result.value);
+          setIsLoading(true);
+          withdraw(result.value).then((res)=> {
+            setIsLoading(false);
+          });
           // Swal.fire("Prelievo avvenuto con successo!", "", "success"); //LISTENER?
         }
       })
@@ -119,7 +125,10 @@ export default function DropdownMenu({ connect: connectWallet}: NavbarProps) {
         showCloseButton: true
       }).then(async (result) => {
         if (result.isConfirmed) {
-          splitProfit();
+          setIsLoading(true);
+          splitProfit().then((res)=> {
+            setIsLoading(false);
+          });
           // Swal.fire("Split profit mockato con successo!", "", "success");
         }
       })
@@ -139,7 +148,10 @@ export default function DropdownMenu({ connect: connectWallet}: NavbarProps) {
     }).then(async (result) => {
       if (result.isConfirmed) {
         if(result.value !== "" && result.value.includes("0x")){
-          addAdministrator(result.value);
+          setIsLoading(true);
+          addAdministrator(result.value).then((res)=> {
+            setIsLoading(false);
+          });
         } else {
           Swal.fire("Indizzo non valido!", "", "error");
         }
@@ -159,7 +171,10 @@ export default function DropdownMenu({ connect: connectWallet}: NavbarProps) {
         showCloseButton: true
       }).then(async (result) => {
         if (result.isConfirmed) {
-          revokeSubscription();
+          setIsLoading(true);
+          revokeSubscription().then((res)=> {
+            setIsLoading(false);
+          });
           Swal.fire("A presto!", "", 'success');
         }
       })
@@ -217,7 +232,10 @@ export default function DropdownMenu({ connect: connectWallet}: NavbarProps) {
     
           }).then(async (result) => {
             if (result.isConfirmed && result.value > 0 && result.value < appContext.balance) {
-              donateETH(result.value);
+              setIsLoading(true);
+              donateETH(result.value).then((res)=> {
+                setIsLoading(false);
+              });
               // Swal.fire on Donation Event (contractBridge.ts)
             }
           })
@@ -232,6 +250,7 @@ export default function DropdownMenu({ connect: connectWallet}: NavbarProps) {
   }
 
   return (
+    <>
     <Dropdown>
       <MenuButton>{appContext.role}</MenuButton>
 
@@ -264,6 +283,8 @@ export default function DropdownMenu({ connect: connectWallet}: NavbarProps) {
         } 
       
     </Dropdown>
+    <Loader loading={isLoading} />
+    </>
   );
 }
 

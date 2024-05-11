@@ -2,6 +2,7 @@ import { ErrorMessage } from "./error";
 
 interface NavbarProps {
     connect: () => void;
+    signer: string;
 }
 
 interface ErrorProps {
@@ -49,8 +50,9 @@ interface SearchProps {
     handleClear: (event: any) => any;
 }
 
-interface PDFProps {
-    pdfUrl: string;
+
+interface LoaderProps {
+    loading: boolean
 }
 
-export type { NavbarProps, ErrorProps, ComplexCardProps, Magazine, Subscription, UserProps, AdminProps, CustomSelectProps, SearchProps, PDFProps }
+export type { NavbarProps, ErrorProps, ComplexCardProps, Magazine, Subscription, UserProps, AdminProps, CustomSelectProps, SearchProps, LoaderProps }
