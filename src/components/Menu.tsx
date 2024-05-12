@@ -35,7 +35,7 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
     }
   
   function prelievo() {
-    let minWithdraw = 0.002;
+    let minWithdraw = 0.00000001;
     let balance = parseFloat(ethers.formatEther(appContext.contractBalance));
     if (balance === 0 || balance < minWithdraw) {
       Swal.fire({
@@ -46,9 +46,9 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
       })
     } 
     else {
-      const inputValue = 0.0000
-      const inputStep = 0.0001
-      const placeholder = "Max " + balance.toFixed(4) + " ETH";
+      const inputValue = 0.00000000;
+      const inputStep = 0.00000001;
+      const placeholder = "Max " + balance.toFixed(8) + " ETH";
 
       Swal.fire({
         title: "Prelievo",
@@ -67,7 +67,7 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
         inputValue,
         inputAttributes: {
           min: '0',
-          max: (balance.toFixed(4)),
+          max: (balance.toFixed(8)),
           step: inputStep.toString(),
         },
         showConfirmButton: true,
@@ -105,7 +105,7 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
   }
 
   function dividiProfitto() {
-    let minWithdraw = 0.002;
+    let minWithdraw = 0.00000001;
     let balance = parseFloat(ethers.formatEther(appContext.contractBalance));
     if (balance === 0 || balance < minWithdraw) {
       Swal.fire({
