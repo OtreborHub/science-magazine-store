@@ -235,8 +235,25 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
               setIsLoading(true);
               donateETH(result.value).then((res)=> {
                 setIsLoading(false);
+                if(res){
+                  Swal.fire({
+                    icon: "success",
+                    title: "Grazie mille!",
+                    text: "Il tuo aiuto è molto apprezzato da tutto il team di Technology Innovation!",
+                    showConfirmButton: true,
+                    confirmButtonColor: "#3085d6",
+                    showCloseButton: true
+                  })
+                } else {
+                  Swal.fire({
+                    title: "Qualcosa è andato storto!",
+                    icon: "error",
+                    text: "Si è verificato un errore durante l'invio della donazione.",
+                    showConfirmButton: true,
+                    confirmButtonColor: "#3085d6",
+                  })
+                }
               });
-              // Swal.fire on Donation Event (contractBridge.ts)
             }
           })
         } else {

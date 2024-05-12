@@ -1,4 +1,4 @@
-import { Contract, Provider, ethers } from "ethers";
+import { Contract, Provider, ethers, parseUnits } from "ethers";
 import Swal from "sweetalert2";
 import { useAppContext } from "../Context";
 import { contractABI } from "./abi";
@@ -405,13 +405,20 @@ export async function donateETH(value: number) {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
+      // const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
   
-      let options = { value: value }
-      return await signerContract.send(options);
+      let amount = parseUnits(value+"", 18);
+      let tx = await signer.sendTransaction({
+        to: CONTRACT_ADDRESS,
+        value: amount,
+        // gasLimit: 21000 // Gas limit per transazioni standard
+      });
+      await tx.wait();
+      return true;
 
     } catch (error) {
-      console.log("buyMagazine action: " + ErrorMessage.TR);
+      console.log("donation action: " + ErrorMessage.TR);
+      return false;
     }
   }
 }
