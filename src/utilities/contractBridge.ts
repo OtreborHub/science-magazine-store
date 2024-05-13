@@ -94,7 +94,7 @@ function addContractListeners(signer: string) {
     //Update verso Firebase eseguito in simpleCard
     Swal.fire({
       title: "Nuovo numero rilasciato!",
-      text: "Indirizzo del magazine: " + magazine_address + "\n.Premi OK per ricaricare la pagina",
+      text: "Indirizzo del magazine: " + magazine_address + ". \nPremi OK per ricaricare la pagina",
       icon: "success",
       showConfirmButton: true,
       confirmButtonColor: "#3085d6"
@@ -106,17 +106,17 @@ function addContractListeners(signer: string) {
     
 
     //DONAZIONE
-    contractInstance.on("Donation", (customer, value, event) => {
-      if(customer === signer){
-          Swal.fire({
-            title: "Nuova donazione!",
-            text: "customer: " + customer + " value: " + value,
-            icon: "success",
-            showConfirmButton: true,
-            confirmButtonColor: "#3085d6"
-          });
-      }
-    });
+    // contractInstance.on("Donation", (customer, value, event) => {
+    //   if(customer === signer){
+    //       Swal.fire({
+    //         title: "Nuova donazione!",
+    //         text: "customer: " + customer + " value: " + value,
+    //         icon: "success",
+    //         showConfirmButton: true,
+    //         confirmButtonColor: "#3085d6"
+    //       });
+    //   }
+    // });
   });
 
 
