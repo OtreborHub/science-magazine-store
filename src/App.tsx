@@ -1,18 +1,16 @@
 
 import { Provider, ethers } from "ethers";
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import './App.css';
 import { useAppContext } from "./Context";
 import Error from './components/Error';
-import Navbar from './components/Navbar';
-import Home from './components/home/Home';
+import Navbar from './components/main/Navbar';
+import Home from './components/main/Home';
 import getContractInstance, { readAdministrator, readContractBalance, readCustomer, readOwner } from "./utilities/contractBridge";
 import { ErrorMessage } from "./utilities/error";
-import { getRole } from "./utilities/role";
 import { firebaseInit } from "./utilities/firebase";
-// import { connectToDatabase } from "./db";
-// import { heliaNode } from "./utilities/helia";
+import { getRole } from "./utilities/role";
 
 declare global {
   interface Window {
@@ -28,8 +26,7 @@ export default function App() {
   useEffect(() => {
     connectWallet();
     firebaseInit();
-    // connectToDatabase();
-    // heliaNode();
+    
     //Events
     window.ethereum.on('chainChanged', handleChanges);
     window.ethereum.on('accountsChanged', handleAccountChanges);
@@ -40,7 +37,7 @@ export default function App() {
     window.location.reload();
   };
 
-  const handleAccountChanges = (accounts:any) => {
+  const handleAccountChanges = async (accounts:any) => {
     if (accounts.length === 0) {
       console.log('Please connect to Metamask.');
       disconnect();
@@ -48,25 +45,22 @@ export default function App() {
     } else if(appContext.signer !== "" && accounts.length > 1) {
       window.location.reload();
     } else {
-      connectWallet();
+      await connectWallet();
+      window.location.reload();
     }
   };
 
   async function connectWallet() {
     if(window.ethereum){
       try{
-        
         const provider = new ethers.BrowserProvider(window.ethereum);
         appContext.updateProvider(provider);
 
-        provider.getSigner().then((signer) => {
-          appContext.updateSigner(signer.address);
-          setAccountBalance(provider, signer.address);
-          appContext.updateChainId(parseInt(window.ethereum.chainId));
-          init(signer.address);
-        }).catch((error) => {
-          console.log(ErrorMessage.TR);
-        })
+        const signer = await provider.getSigner();
+        appContext.updateSigner(signer.address);
+        setAccountBalance(provider, signer.address);
+        appContext.updateChainId(parseInt(window.ethereum.chainId));
+        init(signer.address);
       } catch {
         disconnect();
         console.log("Error retrieving BrowserProvider");
@@ -84,37 +78,32 @@ export default function App() {
   }
 
   async function init(signer: string) {
+    try {
       getContractInstance(appContext.provider, signer);
       
-      readContractBalance().then((result) => {
-        appContext.updateContractBalance((Number(result)));
-      })
+      const contractBalance = await readContractBalance();
+      appContext.updateContractBalance((Number(contractBalance)));
 
-      let admin: boolean = false;
-      let owner: boolean = false;
-      let customer: boolean = false;
-      
-      readAdministrator().then((result) => {
-        admin = result[0];
+      const adminResult = await readAdministrator();
+      const isAdmin = adminResult[0];
 
-        readOwner().then((result) => {
-          owner = result === signer;
-        
-          readCustomer().then((result) => {
-            customer = result[0];
-            appContext.updateRole(getRole(owner, admin, customer));
-          });
-        });
-      });
+      const ownerResult = await readOwner();
+      const isOwner = ownerResult === signer;
 
+      const customerResult = await readCustomer();
+      const isCustomer = customerResult[0];
 
-      // if(!helia){ getAssetIPFS(); }
+      appContext.updateRole(getRole(isOwner, isAdmin, isCustomer));
+    } catch {
+      console.log("Errore durante l'inizializzazione del contratto");
+    }
+
   }
 
-  function setAccountBalance(provider: Provider, signer: string){
+  async function setAccountBalance(provider: Provider, signer: string){
     if(!provider || !signer) return;
 
-    provider.getBalance(signer).then((balance: bigint) => {
+    await provider.getBalance(signer).then((balance: bigint) => {
       const bal = parseFloat(ethers.formatEther(balance))
       console.log(`balance available: ${bal.toFixed(4)} ETH`);
       appContext.updateBalance(bal);
@@ -122,9 +111,9 @@ export default function App() {
   }
 
   return (
-    <div className="App">
+    <div className="App" id="app">
 
-      <Navbar connect={connectWallet} signer={appContext.signer}/>
+      <Navbar connect={connectWallet}/>
       { appContext.signer && appContext.chainId === SEPOLIA_CHAIN_ID && <Home /> }
       { !appContext.signer && <Error errorMessage={ErrorMessage.WL}/> }
       { appContext.signer && appContext.chainId !== SEPOLIA_CHAIN_ID && <Error errorMessage={ErrorMessage.SP}/> }

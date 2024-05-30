@@ -1,14 +1,14 @@
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { Backdrop, Box, Button, CircularProgress, Grid, Typography, useMediaQuery } from "@mui/material";
+import { Box, Button, Grid, Typography, useMediaQuery } from "@mui/material";
+import { useEffect, useState } from 'react';
 import Swal from "sweetalert2";
-import '../../styles/user.css';
 import { addMagazine, emptyMagazine, readMagazineByAddress } from "../../utilities/contractBridge";
 import { AdminProps, Magazine } from "../../utilities/interfaces";
-import SimpleCard from "../cards/SimpleCard";
-import SearchForm from '../SearchForm';
-import { useEffect, useState } from 'react';
-import ComplexCard from '../cards/ComplexCard';
 import Loader from '../Loader';
+import SearchForm from '../main/SearchForm';
+import ComplexCard from '../cards/ComplexCard';
+import SimpleCard from "../cards/SimpleCard";
+import '../../styles/view.css';
 
 export default function AdminView({ notReleasedNumbers, releasedNumbers }: AdminProps) {
   const isMobile = useMediaQuery('(max-width: 750px)');
@@ -24,13 +24,11 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
 
   }, [searchedMagazine])
 
-  
   function newMagazine() {
     Swal.fire({
       title: "Nuovo numero",
       text: "Scegli un titolo per il nuovo numero",
       input: "text",
-      showConfirmButton: true,
       confirmButtonColor: "#3085d6",
       showCloseButton: true,
       showCancelButton: true
@@ -62,18 +60,17 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
     }
     event.preventDefault();
   }
-  
-  const swalError = () => Swal.fire({
-    title: "Opsss..",
-    icon: "error",
-    text: "Qualcosa è andato storto, ricontrolla l'indirizzo inserito o riprova più tardi!",
-    showConfirmButton: true,
-    confirmButtonColor: "#3085d6",
-  });
 
   const handleClear = () => {
     setSearchedMagazine(emptyMagazine);
   }
+
+  const swalError = () => Swal.fire({
+    title: "Opsss..",
+    icon: "error",
+    text: "Qualcosa è andato storto, ricontrolla l'indirizzo inserito o riprova più tardi!",
+    confirmButtonColor: "#3085d6",
+  });
 
   return (
 
@@ -146,4 +143,5 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
 
     </>
   );
+  
 }

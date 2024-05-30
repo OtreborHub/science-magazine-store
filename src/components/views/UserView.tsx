@@ -5,15 +5,15 @@ import { ethers } from 'ethers';
 import { useEffect, useState } from "react";
 import Swal from 'sweetalert2';
 import { useSearchContext } from '../../Context';
-import separator from '../../assets/separator.svg';
-import '../../styles/user.css';
-import { annualSubscription, buyMagazine, getAllMagazines, readAnnualPrice, readCustomerMagazine, readSinglePrice } from "../../utilities/contractBridge";
-import { Magazine, UserProps } from "../../utilities/interfaces";
+import { annualSubscription, buyMagazine, readAllMagazines, readAnnualPrice, readCustomerMagazine, readMagazineCount, readSinglePrice } from '../../utilities/contractBridge';
+import { Magazine, UserProps } from '../../utilities/interfaces';
 import { getCover } from '../../utilities/mock';
-import { formatNumberAddress, formatReleaseDate } from '../../utilities/utils';
+import { formatDate, formatNumberAddress, getFirstDayOfMonth, getLastDayOfMonth } from '../../utilities/helper';
 import Loader from '../Loader';
-import SearchForm from '../SearchForm';
-import ComplexCard from "../cards/ComplexCard";
+import separator from '../../assets/separator.svg';
+import SearchForm from '../main/SearchForm';
+import ComplexCard from '../cards/ComplexCard';
+import '../../styles/view.css';
 
 // const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
 
@@ -27,76 +27,55 @@ export default function UserView({ lastNumber, releasedNumbers }: UserProps) {
 
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
+	const [expandedAnnual, setExpandedAnnual] = useState<boolean>(false);
+	const [expandedLatest, setExpandedLatest] = useState<boolean>(false);
+
 	const searchContext = useSearchContext();
 	const isMobile = useMediaQuery('(max-width: 750px)');
 
 	useEffect(() => {
 		if (singlePrice === 0.00 && annualPrice === 0.00) {
-			getPrices();
+				getPrices();
 		}
 
 		if (searchContext.searched) {
-			// window.scrollTo({
-			//     top:  document.body.scrollHeight,
-			//     behavior: "smooth"
-			// })
-			document.getElementById('search-ref')?.scrollIntoView({
-				behavior: "smooth"
-			});
-			setSearchedMagazined([])
+			setSearchedMagazined([]);
+			forceSearch();
 		}
 
-		if (searchedMagazines.length > 0) {
-			document.getElementById('found-card')?.scrollIntoView({
-				behavior: "smooth"
-			});
 
-		}
-
-	}, [searchContext.searched, searchedMagazines])
+	}, [searchContext.searched, singlePrice, annualPrice])
 
 	async function getPrices() {
-		const single = await readSinglePrice();
-		setSinglePrice(Number(single));
+		try {
+			const single = await readSinglePrice();
+			setSinglePrice(Number(single));
 
-		const annual = await readAnnualPrice();
-		setAnnualPrice(Number(annual));
+			const annual = await readAnnualPrice();
+			setAnnualPrice(Number(annual));
+		} catch {
+			swalError();
+		}
 	}
 
 	const handleChange = (event: any) => {
 		setRadioValue(event.target.value);
 	};
 
-	// const handleSubmit = (event: any) => {
-	// 	setIsLoading(true);
-	// 	console.log(radioValue);
-	// 	if (radioValue === 'annual') {
-	// 		annualSubscription(annualPrice);
-	// 	} else {
-	// 		buyMagazine(lastNumber.address, singlePrice);
-	// 	}
-	// 	event.preventDefault();
-	// 	setIsLoading(false);
-	// };
-
 	async function handleSubmit(event: any) {
 		console.log(radioValue);
+		setIsLoading(true);
 		if (radioValue === 'annual') {
-			setIsLoading(true);
 			annualSubscription(annualPrice).then((res) => {
 				setIsLoading(false);
 			})
 		} else {
-			setIsLoading(true);
 			buyMagazine(lastNumber.address, singlePrice).then((res) => {
 				setIsLoading(false);
 			})
 		}
 		event.preventDefault();
 	};
-
-	const [expandedAnnual, setExpandedAnnual] = useState<boolean>(false);
-	const [expandedLatest, setExpandedLatest] = useState<boolean>(false);
 
 	const onExpandAnnual = () => {
 		setExpandedAnnual(!expandedAnnual);
@@ -119,51 +98,85 @@ export default function UserView({ lastNumber, releasedNumbers }: UserProps) {
 		return 0.00;
 	}
 
+	const scrollDown = () => {
+		document.getElementById('search-ref')?.scrollIntoView({
+			behavior: "smooth",
+		});
+	}
+
+	const forceSearch = async () => {
+		setIsLoading(true);
+		try {
+			const response = await readCustomerMagazine();
+				let magazines = response.responseMagazines;
+				if(magazines.length > 0){
+					setSearchMine(true);
+					setSearchedMagazined(magazines);
+					scrollDown();
+				} else {
+					Swal.fire("Nessun magazine trovato", "info");
+				}
+		} catch {
+			swalError();
+		} finally {
+			setIsLoading(false);
+		}
+	}
+
 	const handleSearch = (event: any) => {
 		const checked = event.target[0].checked;
 		const month = event.target[1].value;
 		const year = event.target[2].value;
 		const dateFilter = month !== "0" && year !== "0";
-		console.log("mese: " + month + " anno: " + year + " solo acquistati: " + checked);
+		console.log("month: " + month + " year: " + year + " only acquired: " + checked);
+		
 		setIsLoading(true);
-		if (checked) {
-			readCustomerMagazine().then((response) => {
-				let magazines = response.responseMagazines;
-				if (dateFilter) {
-					const max_bound = getFirstDayOfMonth(year, month);
-					const min_bound = getLastDayOfMonth(year, month);
-					magazines = response.responseMagazines.filter(number =>
-						number.release_date < max_bound &&
-						number.release_date > min_bound
-					);
-				}
-				setSearchMine(true);
-				setSearchedMagazined(magazines);
-				setIsLoading(false);
-			});
-		} else if (dateFilter) {
-			const max_bound = getFirstDayOfMonth(year, month);
-			const min_bound = getLastDayOfMonth(year, month);
-			getAllMagazines().then((response) => {
-				if (response.responseMagazines.length > 0) {
-					let magazines = response.responseMagazines.filter(number =>
-						number.release_date < max_bound &&
-						number.release_date > min_bound
-					)
+		try {
+
+			if (checked) {
+				readCustomerMagazine().then((response) => {
+					let magazines = response.responseMagazines;
+					if (dateFilter) {
+						const max_bound = getFirstDayOfMonth(year, month);
+						const min_bound = getLastDayOfMonth(year, month);
+						magazines = response.responseMagazines.filter(number =>
+							number.release_date < max_bound &&
+							number.release_date > min_bound
+						);
+					}
+					setSearchMine(true);
 					setSearchedMagazined(magazines);
 					setIsLoading(false);
-				}
-			});
-		} else {
+				});
+			} else if (dateFilter) {
+				const max_bound = getFirstDayOfMonth(year, month);
+				const min_bound = getLastDayOfMonth(year, month);
+				readMagazineCount().then((count: number) => {
+					readAllMagazines(count).then((response) => {
+						if (response.responseMagazines.length > 0) {
+							let magazines = response.responseMagazines.filter(number =>
+								number.release_date < max_bound &&
+								number.release_date > min_bound
+							)
+							setSearchedMagazined(magazines);
+							setIsLoading(false);
+						}
+					});
+				});
+			} else {
+				setIsLoading(false);
+				Swal.fire({
+					title: "Seleziona un criterio di ricerca",
+					icon: "error",
+					text: "Spunta 'solo acquistati' o riempi il mese e l'anno per effettuare una ricerca",
+					confirmButtonColor: "#3085d6",
+					showCloseButton: true
+				});
+			}
+
+		} catch {
 			setIsLoading(false);
-			Swal.fire({
-				title: "Seleziona un criterio di ricerca",
-				icon: "error",
-				text: "Spunta 'solo acquistati' o riempi il mese e l'anno per effettuare una ricerca",
-				showConfirmButton: true,
-				confirmButtonColor: "#3085d6",
-				showCloseButton: true
-			});
+			swalError();
 		}
 
 		event.preventDefault();
@@ -174,13 +187,12 @@ export default function UserView({ lastNumber, releasedNumbers }: UserProps) {
 		setSearchMine(false);
 	}
 
-	function getLastDayOfMonth(year: number, month: number): number {
-		return new Date(year, month - 1, 1).getTime();
-	}
-
-	function getFirstDayOfMonth(year: number, month: number): number {
-		return new Date(year, month, 0).getTime();
-	}
+	const swalError = () => Swal.fire({
+    title: "Opsss..",
+    icon: "error",
+    text: "Qualcosa è andato storto durante l'operazione.\n Riprova più tardi!",
+    confirmButtonColor: "#3085d6",
+  });
 
 	return (
 		<>
@@ -273,7 +285,7 @@ export default function UserView({ lastNumber, releasedNumbers }: UserProps) {
 								</Box>
 								<Collapse in={expandedLatest} timeout="auto" unmountOnExit>
 									<Box display={"flex"} flexDirection={"row"} justifyContent={"space-between"}>
-										<Typography variant="body1">{formatReleaseDate(lastNumber.release_date)}</Typography>
+										<Typography variant="body1">{formatDate(lastNumber.release_date)}</Typography>
 										<Typography variant="body1">{formatNumberAddress(lastNumber.address)}</Typography>
 									</Box>
 									<Typography variant="body1" fontWeight={"bold"}>{lastNumber.title}</Typography>

@@ -1,8 +1,10 @@
 import { initializeApp } from "firebase/app";
 import { Database, DatabaseReference, child, getDatabase, ref, set, get, update } from "firebase/database";
 
+const FIREBASE_API_KEY: string = process.env.REACT_APP_FIREBASE_APY_KEY as string;
+
 const firebaseConfig = {
-  apiKey: "AIzaSyBLaXHqeS0rpdroaUOyJ-npB9X2Gv8vB-g",
+  apiKey: FIREBASE_API_KEY,
   authDomain: "store-magazine.firebaseapp.com",
   databaseURL: "https://store-magazine-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "store-magazine",
@@ -40,8 +42,6 @@ async function updateMagazine(address: string, cover: string, content: string, s
     content: content,
     summary: summary
   });
-
 }
-
 
 export { firebaseInit, db, createMagazine, findMagazine, updateMagazine }

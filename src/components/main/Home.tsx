@@ -1,13 +1,13 @@
 import { Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../Context";
-import '../../styles/home.css';
-import { emptyMagazine, getAllMagazines } from "../../utilities/contractBridge";
+import { emptyMagazine, readAllMagazines, readMagazineCount } from "../../utilities/contractBridge";
 import { findMagazine } from "../../utilities/firebase";
 import { Magazine } from '../../utilities/interfaces';
 import { Role } from "../../utilities/role";
-import AdminView from "./AdminView";
-import UserView from "./UserView";
+import AdminView from "../views/AdminView";
+import UserView from "../views/UserView";
+import '../../styles/home.css';
 
 export default function Home() {
   const [lastNumber, setLastNumber] = useState<Magazine>(emptyMagazine);
@@ -20,7 +20,8 @@ export default function Home() {
   }, [appContext.role])
 
   async function getMagazines() {
-    const result = (await getAllMagazines());
+    const count = await readMagazineCount();
+    const result = await readAllMagazines(count);
     const notReleasedNumbers = result.responseMagazines.filter(number => number.release_date === 0);
 
     let lastNumber: Magazine = emptyMagazine;
@@ -42,7 +43,6 @@ export default function Home() {
 
   }
 
-  // FIREBASE
   async function fillLastNumberData(number: Magazine) {
     const response = await findMagazine(number.address);
       if(response.exists()){
@@ -53,20 +53,6 @@ export default function Home() {
 
     setLastNumber(number);
   }
-
-  // JSON-SERVER
-  // async function fillLastNumberData(number: Magazine) {
-  //   const response = await axios.get("http://localhost:5000/magazines", { params: { address: number.address } });
-  //   if(response) {
-  //     const lastNumber = response.data[0];
-  //     if(lastNumber){
-  //       number.cover = lastNumber.cover;
-  //       number.summary = lastNumber.summary;
-  //       number.content = lastNumber.content;
-  //     }
-  //   }
-  //   setLastNumber(number);
-  // }
 
   return (
       <div className="main-div">

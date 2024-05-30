@@ -5,16 +5,16 @@ import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
 import { styled } from '@mui/system';
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
-import getContractInstance, { addAdministrator, donateETH, readCustomer, revokeSubscription, splitProfit, withdraw } from '../utilities/contractBridge';
-import { NavbarProps } from '../utilities/interfaces';
-import { Role } from '../utilities/role';
-import { useSearchContext } from '../Context';
-import { useAppContext } from '../Context';
-import { formatBalance } from '../utilities/utils';
+import { addAdministrator, donateETH, readCustomer, revokeSubscription, splitProfit, withdraw } from '../../utilities/contractBridge';
+import { NavbarProps } from '../../utilities/interfaces';
+import { Role } from '../../utilities/role';
+import { useSearchContext } from '../../Context';
+import { useAppContext } from '../../Context';
+import { formatBalance } from '../../utilities/helper';
 import { ethers } from 'ethers';
-import Loader from './Loader';
+import Loader from '../Loader';
 
-export default function DropdownMenu({ connect: connectWallet, signer}: NavbarProps) {
+export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
     const [hasSubscription, setHasSubscription] = useState<boolean>(false)
     const searchContext = useSearchContext();
     const appContext = useAppContext();
@@ -22,19 +22,26 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-      getContractInstance(appContext.provider, signer);
       if(appContext.role === Role.CUSTOMER){
         getSubscription();
       }
-    })
+    }, [appContext.provider, appContext.role])
   
     async function getSubscription() {
-      readCustomer().then((result) => {
-        setHasSubscription((result[2]));
-      })
+      try {
+        const customerResult = await readCustomer();
+        setHasSubscription((customerResult[2]));
+      } catch {
+        Swal.fire({
+          title: "Opss...", 
+          text: "Qualcosa è andato storto durante il recupero delle informazioni dal contratto.\nRiprova più tardi.", 
+          icon: "error",
+          confirmButtonColor: "#3085d6"
+        })
+      }
     }
   
-  function prelievo() {
+  function withdrawBalance() {
     let minWithdraw = 0.00000001;
     let balance = parseFloat(ethers.formatEther(appContext.contractBalance));
     if (balance === 0 || balance < minWithdraw) {
@@ -70,7 +77,6 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
           max: (balance.toFixed(8)),
           step: inputStep.toString(),
         },
-        showConfirmButton: true,
         confirmButtonColor: "#3085d6",
         showCancelButton: true,
         showCloseButton: true,
@@ -97,14 +103,19 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
           setIsLoading(true);
           withdraw(result.value).then((res)=> {
             setIsLoading(false);
+            Swal.fire({
+              title: "Prelievo avvenuto con successo!", 
+              text: "", 
+              icon: "success",
+              confirmButtonColor: "#3085d6"
+            });
           });
-          // Swal.fire("Prelievo avvenuto con successo!", "", "success"); //LISTENER?
         }
       })
     }
   }
 
-  function dividiProfitto() {
+  function split() {
     let minWithdraw = 0.00000001;
     let balance = parseFloat(ethers.formatEther(appContext.contractBalance));
     if (balance === 0 || balance < minWithdraw) {
@@ -112,6 +123,7 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
         title: "Impossibile eseguire l'operazione",
         text: "Attenzione, Attualmente sul contratto sono presenti meno di: " + minWithdraw + " ETH",
         icon: "error",
+        confirmButtonColor: "#3085d6",
         showCloseButton: true
       })
     } 
@@ -119,7 +131,6 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
       Swal.fire({
         title: "Dividi Profitto",
         text: "Proseguendo dividerai il bilancio del contratto con i tuoi collaboratori, sei sicuro?",
-        showConfirmButton: true,
         confirmButtonColor: "#3085d6",
         showCancelButton: true,
         showCloseButton: true
@@ -127,21 +138,20 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
         if (result.isConfirmed) {
           setIsLoading(true);
           splitProfit().then((res)=> {
+            Swal.fire("Split profit avvenuto con successo!", "", "success");
             setIsLoading(false);
           });
-          // Swal.fire("Split profit mockato con successo!", "", "success");
         }
       })
     }
   }
 
-  function aggiungiAdmin() {
+  function addAdmin() {
     Swal.fire({
-      title: "Aggiungi amministratore",
+      title: "Aggiungi admin",
       input: "text",
-      text: "Inserisci l'indirizzo del wallet da aggiungere come amministratore",
+      text: "Inserisci l'indirizzo del wallet da aggiungere come admin",
       inputPlaceholder: "Address 0x00...",
-      showConfirmButton: true,
       confirmButtonColor: "#3085d6",
       showCancelButton: true,
       showCloseButton: true
@@ -150,6 +160,7 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
         if(result.value !== "" && result.value.includes("0x")){
           setIsLoading(true);
           addAdministrator(result.value).then((res)=> {
+            Swal.fire("Admin aggiunto con successo!", "", "success");
             setIsLoading(false);
           });
         } else {
@@ -159,13 +170,12 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
     })
   }
 
-  function revoca() {
+  function revoke() {
     if (appContext.balance > 0) {
       Swal.fire({
         title: "Aspetta...",
         text: "Sei sicuro di voler revocare l'abbonamento? :(",
         icon: "question",
-        showConfirmButton: true,
         confirmButtonColor: "#3085d6",
         showCancelButton: true,
         showCloseButton: true
@@ -210,7 +220,6 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
               max: (balance.toFixed(4)),
               step: inputStep.toString(),
             },
-            showConfirmButton: true,
             confirmButtonColor: "#3085d6",
             showCancelButton: true,
             showCloseButton: true,
@@ -240,7 +249,6 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
                     icon: "success",
                     title: "Grazie mille!",
                     text: "Il tuo aiuto è molto apprezzato da tutto il team di Technology Innovation!",
-                    showConfirmButton: true,
                     confirmButtonColor: "#3085d6",
                     showCloseButton: true
                   })
@@ -249,7 +257,6 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
                     title: "Qualcosa è andato storto!",
                     icon: "error",
                     text: "Si è verificato un errore durante l'invio della donazione.",
-                    showConfirmButton: true,
                     confirmButtonColor: "#3085d6",
                   })
                 }
@@ -275,7 +282,7 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
         <Menu slots={{ listbox: Listbox }}>
             <MenuItem  onClick={() => searchContext.search()}>Magazine acquistati</MenuItem>
             { hasSubscription && 
-                <MenuItem sx={{ color: "red" }} onClick={() => revoca()}>Revoca abbonamento</MenuItem>
+                <MenuItem sx={{ color: "red" }} onClick={() => revoke()}>Revoca abbonamento</MenuItem>
             }
             <hr/>
             <MenuItem onClick={() => donate()}>Considera una donazione!</MenuItem>
@@ -287,9 +294,9 @@ export default function DropdownMenu({ connect: connectWallet, signer}: NavbarPr
         <Menu slots={{ listbox: Listbox }}>
             <MenuItem>{"Contract Balance "  + formatBalance(appContext.contractBalance) + " ETH"} </MenuItem>
             <hr/>
-            <MenuItem  onClick={() => prelievo()}>Preleva</MenuItem>
-            <MenuItem onClick={() => dividiProfitto()}>Dividi profitto</MenuItem>
-            <MenuItem onClick={() => aggiungiAdmin()}>Aggiungi Admin</MenuItem>
+            <MenuItem  onClick={() => withdrawBalance()}>Preleva</MenuItem>
+            <MenuItem onClick={() => split()}>Dividi profitto</MenuItem>
+            <MenuItem onClick={() => addAdmin()}>Aggiungi Admin</MenuItem>
         </Menu>
         }  
 

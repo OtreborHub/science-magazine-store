@@ -23,29 +23,10 @@ const getCover = (cover: string) => {
         return mag5;
       default:
         return cover;
-        // return fetchCover(cover);
     }
   }
 
   return mag_not_found;
 }
-
-// async function fetchCover(cover: string) {
-//   return fetch(cover)
-//     .then((response) => {
-//       if (response.ok && response.body) {
-//         return response.blob();
-//       } else {
-//         throw new Error('Network response was not ok.');
-//       }
-//     })
-//     .then((blob) => {
-//       return URL.createObjectURL(blob);
-//     })
-//     .catch((error) => {
-//       console.error('There has been a problem with your fetch operation:', error);
-//       return mag_not_found;
-//     });
-// }
 
 export { getCover }

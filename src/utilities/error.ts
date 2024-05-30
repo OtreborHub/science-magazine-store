@@ -1,8 +1,11 @@
 export enum ErrorMessage {
-    WL="Please connect your wallet",
-    SP="Please connect your provider to Sepolia Testnet",
-    DFT="Something went Wrong!",
+    WL="Per favore connetti il tuo wallet",
+    SP="Connetti il tuo provider alla rete Sepolia Testnet",
     RD="Error reading contract data",
-    TR="Transaction refused"
+    TR="Transaction refused",
+    MAO="Magazine already owned",
+    IF="Insufficent funds",
+    MNT="Magazine not found",
+    MNR="Magazine not released"
 }
 

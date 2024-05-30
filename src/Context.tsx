@@ -4,11 +4,6 @@ import { Role } from "./utilities/role";
 
 const infuraProvider: Provider = new ethers.InfuraProvider("sepolia" , process.env.INFURA_API_KEY);
 
-const searchContext = createContext({
-  search: () => {},
-  searched: false
-});
-
 const appContext = createContext({
   updateProvider: (provider:Provider) => {},
   updateChainId: (chainId: number) => {},
@@ -24,12 +19,17 @@ const appContext = createContext({
   role: Role.NONE
 })
 
-export function useSearchContext() {
-  return useContext(searchContext);
-}
+const searchContext = createContext({
+  search: () => {},
+  searched: false
+});
 
 export function useAppContext() {
   return useContext(appContext);
+}
+
+export function useSearchContext() {
+  return useContext(searchContext);
 }
 
 interface AppContextProviderProps {

@@ -8,12 +8,11 @@ import Typography from '@mui/material/Typography';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
-import '../../styles/card.css';
 import { buyMagazine } from '../../utilities/contractBridge';
 import { findMagazine } from '../../utilities/firebase';
 import { ComplexCardProps } from '../../utilities/interfaces';
 import { getCover } from '../../utilities/mock';
-import { formatReleaseDate } from '../../utilities/utils';
+import { formatDate } from '../../utilities/helper';
 import Loader from '../Loader';
 
 const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
@@ -26,8 +25,8 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
-  // FIREBASE
   useEffect(() => {
+    //Firebase data
     findMagazine(magazine.address).then(
       response => {
         if(response.exists()) {
@@ -37,19 +36,6 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
         }
       })
   }, [])
-
-  // JSON-SERVER
-  // useEffect(() => {
-  //   axios.get("http://localhost:5000/magazines", { params: { address: magazine.address } })
-  //   .then(response => {
-  //     const magazines = response.data;
-  //     if(magazines.length === 1) {
-  //       setCover(magazines[0].cover);
-  //       setSummary(magazines[0].summary);
-  //       setContent(magazines[0].content);
-  //     }
-  //   })
-  // }, [])
 
   const formatNumberAddress = (address: string) => {
     return address.substring(0, 7) + "..." + address.substring(address.length - 5, address.length)
@@ -63,16 +49,14 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
     Swal.fire({
       title: "Acquista numero",
       text: "Verranno inviati al contratto " + formatETH() + " ETH. Confermi l'acquisto?",
-      showConfirmButton: true,
       confirmButtonColor: "#3085d6",
       showCancelButton: true,
       showCloseButton: true
     }).then(async (result) => {
       if (result.isConfirmed) {
         setIsLoading(true);
-        buyMagazine(magazine.address, singlePrice).then((res) => {
-          setIsLoading(false);
-        })
+        await buyMagazine(magazine.address, singlePrice);
+        setIsLoading(false);
       }
     })
   }
@@ -89,7 +73,7 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
   ( <>
       {valid && 
       <Typography>
-        Rilasciato il: {formatReleaseDate(magazine.release_date)}
+        Rilasciato il: {formatDate(magazine.release_date)}
       </Typography>
       }
       { !valid && 

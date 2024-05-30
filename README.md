@@ -68,7 +68,7 @@ Possiamo suddividere le funzionalità in base al modificatore applicato ad ogni 
 
 <h4><u>OnlyOwner</u></h4> 
 
-- **addAdmin**: funzione che permette all'owner del contratto di aggiungere un indirizzo all'array administrators garantendogli l'autorizzazione ad utilizzare tutte le funzioni con modificatore onlyAdministrators. Inoltre ogni amministratore ha la possibilità di essere ricompensato (vedi splitProfit).
+- **addAdmin**: funzione che permette all'owner del contratto di aggiungere un indirizzo all'array administrators garantendogli l'autorizzazione ad utilizzare tutte le funzioni con modificatore onlyAdministrators. Inoltre ogni admin ha la possibilità di essere ricompensato (vedi splitProfit).
 
 - **withdraw**: funzione che permette all'owner di prelevare parzialmente o totalmente il bilancio del contratto.
 
@@ -86,9 +86,9 @@ Applicativo React realizzato in Typescript come user experience dei contratti en
 - **sweetalert**: rendering dei popup.
 
 L'applicativo fornisce un interfaccia grafica al ciclo di vita di ogni magazine. Le 3 fasi standard sono le seguenti:
-> 1. L'owner del contratto (o un amministratore) crea un nuovo numero, inserendone soltanto il titolo. Il contratto genera a partire dal testo inserito l'indirizzo del nuovo magazine.
+> 1. L'owner del contratto (o un admin) crea un nuovo numero, inserendone soltanto il titolo. Il contratto genera a partire dal testo inserito l'indirizzo del nuovo magazine.
 
-> 2. L'owner del contratto (o un amministratore) rilascia il numero appena inserito, riempiendo il form con due URL e una breve descrizione del numero che verrà esposta agli utenti. I due URL fanno riferimento alle risorse relative alla copertina e al contenuto del numero. Entrambi gli URL vengono forniti da IPFS Desktop al caricamento della risorsa.
+> 2. L'owner del contratto (o un admin) rilascia il numero appena inserito, riempiendo il form con due URL e una breve descrizione del numero che verrà esposta agli utenti. I due URL fanno riferimento alle risorse relative alla copertina e al contenuto del numero. Entrambi gli URL vengono forniti da IPFS Desktop al caricamento della risorsa.
 
 > 3. A questo punto gli utenti saranno in grado di vedere il numero rilasciato e decidere se acquistare il singolo numero o effettuare un abbonamento annuale. L'abbonamento annuale garantisce l'accesso a tutti i numeri rilasciati per un anno dalla sottoscrizione.
 

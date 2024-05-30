@@ -18,39 +18,23 @@ const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
 export default function SimpleCard({address, title, release_date}: Magazine) {
   const valid = release_date > 0;
   
-  // const [cover, setCover] = useState<string>("");
   const [summary, setSummary] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [copied, setCopied] = useState<boolean>(false);
-  // const isMobile = useMediaQuery('(max-width: 750px)');
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
-  // FIREBASE
   useEffect(() => {
+    //Firebase data
     findMagazine(address).then(
       response => {
         if(response.exists()) {
-          // setCover(response.val().cover);
           setSummary(response.val().summary);
           setContent(response.val().content);
         }
       })
   }, [])
   
-  // JSON-SERVER
-  // useEffect(() => {
-  //   axios.get("http://localhost:5000/magazines", { params: { address: address } })
-  //   .then(response => {
-  //     const magazines = response.data;
-  //     if(magazines.length === 1) {
-  //       setCover(magazines[0].cover);
-  //       setSummary(magazines[0].summary);
-  //       setContent(magazines[0].content);
-  //     }
-  //   });
-  // }, [])
-
   const formatNumberAddress = (address: string) => {
     return address.substring(0, 7) + "..." + address.substring(address.length - 5, address.length)
   }
@@ -83,7 +67,6 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
       title: 'Inserisci i dettagli del numero dal rilasciare',
       html: swalContent,
       focusConfirm: false,
-      showConfirmButton: true,
       confirmButtonColor: "#3085d6",
       showCloseButton: true,
       showCancelButton: true,
@@ -103,7 +86,12 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
             saveReleasedMagazine( coverURL, contentURL, summary );
           });
         } else {
-          Swal.fire("Parametri di input non validi", "", "error");
+          Swal.fire({
+            title: "Parametri di input non validi", 
+            text: "Ricorda che i primi due campi devono essere risorse IPFS.", 
+            icon: "error",
+            confirmButtonColor: "#3085d6"
+          });
         }
       }
 
@@ -120,35 +108,17 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
     window.open(pdfUrl, "_blank");
   }
 
-  // FIREBASE
-  function saveReleasedMagazine(cover: string, content: string, summary: string){
-    findMagazine(address).then((response) => {
-      if(response.exists()){
-        updateMagazine(address, cover, content, summary).then(response => {
-          console.log(response);
-          setIsLoading(false);
-        })
-        .catch(error => console.log("Impossibile salvare: " + error));
-      }
-    })
+  async function saveReleasedMagazine(cover: string, content: string, summary: string){
+    //Firebase data
+    const findResult = await findMagazine(address);
+    if(findResult.exists()){
+      await updateMagazine(address, cover, content, summary)
+      setIsLoading(false);
+    }
   }
-
-  // JSON-SERVER
-  // function saveReleasedMagazine(cover: string, content: string, summary: string){
-  //   axios.get('http://localhost:5000/magazines', { params: { address: address } }).then((response) => {
-  //     const magazine_id = response.data[0].id;
-  //     axios.put('http://localhost:5000/magazines/'+ magazine_id, 
-  //       { address: address, cover: cover, content: content, summary: summary },
-  //     ).then(response => {
-  //       console.log(response);
-  //     })
-  //     .catch(error => console.log("Impossibile salvare: " + error));
-  //   })
-  // }
 
   const inputValidation = (cover: string, content: string, summary: string) => {
     const isValidUrl = (url: string) => url !== "" && url.includes(IPFSBaseUrl) && url.includes("?filename");
-  
     return isValidUrl(cover) && isValidUrl(content) && summary !== "";
   }
 

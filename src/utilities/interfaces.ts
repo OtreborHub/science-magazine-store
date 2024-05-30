@@ -2,7 +2,6 @@ import { ErrorMessage } from "./error";
 
 interface NavbarProps {
     connect: () => void;
-    signer: string;
 }
 
 interface ErrorProps {
