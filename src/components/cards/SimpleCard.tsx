@@ -12,6 +12,7 @@ import { releaseMagazine } from '../../utilities/contractBridge';
 import { findMagazine, updateMagazine } from '../../utilities/firebase';
 import { Magazine } from '../../utilities/interfaces';
 import Loader from '../Loader';
+import { formatDate, formatNumberAddress } from '../../utilities/helper';
 
 const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
 
@@ -35,37 +36,10 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
       })
   }, [])
   
-  const formatNumberAddress = (address: string) => {
-    return address.substring(0, 7) + "..." + address.substring(address.length - 5, address.length)
-  }
-
-  const formatReleaseDate = (release_date: number) => {
-    return new Date(release_date)
-    .toLocaleDateString("it-IT", {year: "numeric", day: "2-digit", month: "2-digit"})
-    .replaceAll("/", "-");
-  }
-
-  function copyToClipboard(){
-    setCopied(true);
-    navigator.clipboard.writeText(address);
-    setTimeout(() => {
-      setCopied(false)
-    }, 2000)
-  }
-
-  const swalContent = `
-  <label for="cover">Cover: </label><br>
-  <input id="cover" class="swal2-input mb" placeholder="coverCID?filename"><br>
-  <label for="content">Contenuto PDF: </label><br>
-  <input id="content" class="swal2-input mb" placeholder="contentCID?filename"><br>
-  <label for="summary">Sommario: </label><br>
-  <textarea id="summary" class="swal2-textarea mb" placeholder="Scrivi un breve sommario del contenuto del numero"></textarea>
-  `;
-  
   function release() {
     Swal.fire({
       title: 'Inserisci i dettagli del numero dal rilasciare',
-      html: swalContent,
+      html: swalReleaseContent,
       focusConfirm: false,
       confirmButtonColor: "#3085d6",
       showCloseButton: true,
@@ -122,6 +96,23 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
     return isValidUrl(cover) && isValidUrl(content) && summary !== "";
   }
 
+  function copyToClipboard(){
+    setCopied(true);
+    navigator.clipboard.writeText(address);
+    setTimeout(() => {
+      setCopied(false)
+    }, 2000)
+  }
+
+  const swalReleaseContent = `
+  <label for="cover">Cover: </label><br>
+  <input id="cover" class="swal2-input mb" placeholder="coverCID?filename"><br>
+  <label for="content">Contenuto PDF: </label><br>
+  <input id="content" class="swal2-input mb" placeholder="contentCID?filename"><br>
+  <label for="summary">Sommario: </label><br>
+  <textarea id="summary" class="swal2-textarea mb" placeholder="Scrivi un breve sommario del contenuto del numero"></textarea>
+  `;
+
   return (
     <>
     <Card sx={{boxShadow: "5px 5px #888888", border: "2px solid", borderColor: "black"}}>
@@ -131,7 +122,7 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
           <>
             { valid &&
               <Typography variant="body2" color="text.secondary">
-                {formatReleaseDate(release_date)}
+                {formatDate(release_date)}
               </Typography>
             }
             <Box display={"flex"} flexDirection={"row"} justifyContent={"space-between"} alignItems={"center"}>
@@ -175,5 +166,7 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
     <Loader loading={isLoading}/>
     </>
   );
+
+  
 
 }

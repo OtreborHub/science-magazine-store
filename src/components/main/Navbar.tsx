@@ -21,14 +21,14 @@ export default function Navbar({connect: connectWallet}: NavbarProps) {
               <DropdownMenu connect={connectWallet}/>
             </Typography>
           
-            <div>
+            <Box textAlign={"center"}>
               <Typography variant="body1" mr="0.2rem" component="div" color="whitesmoke" sx={{ flexGrow: 1 }}>
                 Address {formatNumberAddress(appContext.signer)}
               </Typography>
               <Typography variant="body1" component="div" color="whitesmoke" sx={{ flexGrow: 1 }}>
-                Balance { (appContext.balance).toFixed(4) } ETH             
+                Balance { (appContext.balance).toFixed(18) } ETH             
               </Typography>
-            </div> 
+            </Box> 
           </> 
           : <w3m-button loadingLabel='loading' />
         }

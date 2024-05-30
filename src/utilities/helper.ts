@@ -7,7 +7,7 @@ export const formatDate = (release_date: number) => {
 }
 
 export const formatNumberAddress = (address: string) => {
-    return address.substring(0, 8) + "..." + address.substring(address.length - 5, address.length)
+    return address.substring(0, 8) + "..." + address.substring(address.length - 8, address.length)
 }
 
 export const formatBalance = (balance: number) => {

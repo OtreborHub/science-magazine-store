@@ -4,13 +4,13 @@ import { Provider, ethers } from "ethers";
 import { useEffect } from 'react';
 import './App.css';
 import { useAppContext } from "./Context";
-import Error from './components/Error';
 import Navbar from './components/main/Navbar';
 import Home from './components/main/Home';
 import getContractInstance, { readAdministrator, readContractBalance, readCustomer, readOwner } from "./utilities/contractBridge";
 import { ErrorMessage } from "./utilities/error";
 import { firebaseInit } from "./utilities/firebase";
 import { getRole } from "./utilities/role";
+import ErrorView from "./components/views/ErrorView";
 
 declare global {
   interface Window {
@@ -58,8 +58,10 @@ export default function App() {
 
         const signer = await provider.getSigner();
         appContext.updateSigner(signer.address);
+
         setAccountBalance(provider, signer.address);
         appContext.updateChainId(parseInt(window.ethereum.chainId));
+
         init(signer.address);
       } catch {
         disconnect();
@@ -105,7 +107,7 @@ export default function App() {
 
     await provider.getBalance(signer).then((balance: bigint) => {
       const bal = parseFloat(ethers.formatEther(balance))
-      console.log(`balance available: ${bal.toFixed(4)} ETH`);
+      console.log(`balance available: ${bal.toFixed(18)} ETH`);
       appContext.updateBalance(bal);
     });
   }
@@ -115,8 +117,8 @@ export default function App() {
 
       <Navbar connect={connectWallet}/>
       { appContext.signer && appContext.chainId === SEPOLIA_CHAIN_ID && <Home /> }
-      { !appContext.signer && <Error errorMessage={ErrorMessage.WL}/> }
-      { appContext.signer && appContext.chainId !== SEPOLIA_CHAIN_ID && <Error errorMessage={ErrorMessage.SP}/> }
+      { !appContext.signer && <ErrorView errorMessage={ErrorMessage.WL}/> }
+      { appContext.signer && appContext.chainId !== SEPOLIA_CHAIN_ID && <ErrorView errorMessage={ErrorMessage.SP}/> }
 
     </div>
   );

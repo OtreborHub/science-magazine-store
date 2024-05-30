@@ -49,7 +49,6 @@ interface SearchProps {
     handleClear: (event: any) => any;
 }
 
-
 interface LoaderProps {
     loading: boolean
 }

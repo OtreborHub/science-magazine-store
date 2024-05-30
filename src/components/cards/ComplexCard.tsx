@@ -12,7 +12,7 @@ import { buyMagazine } from '../../utilities/contractBridge';
 import { findMagazine } from '../../utilities/firebase';
 import { ComplexCardProps } from '../../utilities/interfaces';
 import { getCover } from '../../utilities/mock';
-import { formatDate } from '../../utilities/helper';
+import { formatDate, formatNumberAddress } from '../../utilities/helper';
 import Loader from '../Loader';
 
 const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
@@ -36,10 +36,6 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
         }
       })
   }, [])
-
-  const formatNumberAddress = (address: string) => {
-    return address.substring(0, 7) + "..." + address.substring(address.length - 5, address.length)
-  }
 
   const formatETH = () => {
     return ethers.formatEther(singlePrice);
@@ -86,7 +82,6 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
       </Typography>
     </>
   );
-
 
   return (
     <>

@@ -42,7 +42,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
     }
   
   function withdrawBalance() {
-    let minWithdraw = 0.00000001;
+    let minWithdraw = 0.000001;
     let balance = parseFloat(ethers.formatEther(appContext.contractBalance));
     if (balance === 0 || balance < minWithdraw) {
       Swal.fire({
@@ -53,9 +53,9 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
       })
     } 
     else {
-      const inputValue = 0.00000000;
-      const inputStep = 0.00000001;
-      const placeholder = "Max " + balance.toFixed(8) + " ETH";
+      const inputValue = 0.000000;
+      const inputStep = 0.000001;
+      const placeholder = "Max " + balance.toFixed(6) + " ETH";
 
       Swal.fire({
         title: "Prelievo",
@@ -74,7 +74,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
         inputValue,
         inputAttributes: {
           min: '0',
-          max: (balance.toFixed(8)),
+          max: (balance.toFixed(6)),
           step: inputStep.toString(),
         },
         confirmButtonColor: "#3085d6",
@@ -116,7 +116,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
   }
 
   function split() {
-    let minWithdraw = 0.00000001;
+    let minWithdraw = 0.000001;
     let balance = parseFloat(ethers.formatEther(appContext.contractBalance));
     if (balance === 0 || balance < minWithdraw) {
       Swal.fire({
@@ -138,8 +138,13 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
         if (result.isConfirmed) {
           setIsLoading(true);
           splitProfit().then((res)=> {
-            Swal.fire("Split profit avvenuto con successo!", "", "success");
             setIsLoading(false);
+            Swal.fire({
+              title: "Split profit avvenuto con successo!", 
+              text: "", 
+              icon: "success",
+              confirmButtonColor: "#3085d6"
+            });
           });
         }
       })
@@ -160,11 +165,21 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
         if(result.value !== "" && result.value.includes("0x")){
           setIsLoading(true);
           addAdministrator(result.value).then((res)=> {
-            Swal.fire("Admin aggiunto con successo!", "", "success");
             setIsLoading(false);
+            Swal.fire({
+              title: "Admin aggiunto con successo!", 
+              text: "", 
+              icon: "success",
+              confirmButtonColor: "#3085d6"
+            });
           });
         } else {
-          Swal.fire("Indizzo non valido!", "", "error");
+          Swal.fire({
+            title:"Indizzo non valido!", 
+            text: "", 
+            icon: "error",
+            confirmButtonColor: "#3085d6"
+          });
         }
       } 
     })
@@ -193,12 +208,12 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
 
   function donate() {
     if (appContext.balance > 0) {
-        let minDonation = 0.0002;
+        let minDonation = 0.000001;
         let balance = appContext.balance;
         if (balance > 0 && balance > minDonation) {
-          const inputValue = 0.0002
-          const inputStep = 0.00001
-          const placeholder = "Max " + balance.toFixed(4) + " ETH";
+          const inputValue = 0.000001
+          const inputStep = 0.000001
+          const placeholder = "Max " + balance.toFixed(6) + " ETH";
     
           Swal.fire({
             title: "Donazione",
@@ -209,7 +224,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
               <input
                 type="number"
                 placeholder="${placeholder}"
-                value="${inputValue} ETH"
+                value="${inputValue.toFixed(6)} ETH"
                 step="${inputStep}"
                 class="swal2-input"
                 id="range-value">`,
@@ -217,7 +232,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
             inputValue,
             inputAttributes: {
               min: '0',
-              max: (balance.toFixed(4)),
+              max: (balance.toFixed(6)),
               step: inputStep.toString(),
             },
             confirmButtonColor: "#3085d6",
@@ -240,29 +255,36 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
             },
     
           }).then(async (result) => {
-            if (result.isConfirmed && result.value > 0 && result.value < appContext.balance) {
-              setIsLoading(true);
-              donateETH(result.value).then((res)=> {
-                setIsLoading(false);
-                if(res){
-                  Swal.fire({
-                    icon: "success",
-                    title: "Grazie mille!",
-                    text: "Il tuo aiuto è molto apprezzato da tutto il team di Technology Innovation!",
-                    confirmButtonColor: "#3085d6",
-                    showCloseButton: true
-                  })
-                } else {
-                  Swal.fire({
-                    title: "Qualcosa è andato storto!",
-                    icon: "error",
-                    text: "Si è verificato un errore durante l'invio della donazione.",
-                    confirmButtonColor: "#3085d6",
-                  })
-                }
-              });
+            if (result.isConfirmed && result.value > 0) {
+              if(result.value < appContext.balance){
+                setIsLoading(true);
+                donateETH(result.value).then((res)=> {
+                  setIsLoading(false);
+                  if(res){
+                    Swal.fire({
+                      icon: "success",
+                      title: "Grazie mille!",
+                      text: "Il tuo aiuto è molto apprezzato da tutto il team di Technology Innovation!",
+                      confirmButtonColor: "#3085d6",
+                      showCloseButton: true
+                    })
+                  } else {
+                    Swal.fire({
+                      title: "Qualcosa è andato storto!",
+                      icon: "error",
+                      text: "Si è verificato un errore durante l'invio della donazione.",
+                      confirmButtonColor: "#3085d6",
+                    })
+                  }
+                });
+            } else {
+              Swal.fire({
+                title: "Errore",
+                text: "Attenzione, il tuo bilancio è inferiore alla donazione inviata",
+                showCloseButton: true
+              })
             }
-          })
+          }})
         } else {
           Swal.fire({
             title: "Errore",

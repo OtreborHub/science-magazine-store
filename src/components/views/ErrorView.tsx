@@ -1,8 +1,8 @@
 import Typography from "@mui/material/Typography/Typography";
-import "../styles/error.css";
-import { ErrorProps } from "../utilities/interfaces";
+import "../../styles/error.css";
+import { ErrorProps } from "../../utilities/interfaces";
 
-export default function Error({errorMessage}: ErrorProps) {
+export default function ErrorView({errorMessage}: ErrorProps) {
 
 
     return (
