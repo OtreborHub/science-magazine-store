@@ -12,15 +12,13 @@ contract MagazineManager {
     address[] administrators;
     address public owner;
 
-    // uint singlePrice = 0.0011 ether;
-    uint public singlePrice = 1 wei;
+    uint public singlePrice = 0.0001 ether;
     uint public annualPrice = (singlePrice * 12) - ((singlePrice * 12)/10);
     
     event BuyOrder(address customer_address, address magazine_address);
     event SubscriptionOrder(address customer_address, uint expire_date);
     event NewMagazine(address magazine_address);
     event ReleaseMagazine(address magazine_address);
-    event Donation(address user_address, uint amount);
 
     constructor(){
         owner = msg.sender;
@@ -56,13 +54,13 @@ contract MagazineManager {
 
     function magazinesByCustomer() external view returns(address[] memory ){
         (bool present, uint idx, ) = customers.searchCustomer(msg.sender);
-        require(present == true, "sender is not a customer");
+        require(present == true, "Customer not found");
         return customers[idx].owned_magazines;
     }
 
     function magazineByAddress(address magazine_address) external view returns (MagazineUtils.Magazine memory) {
         (bool present, uint idx, ) = magazines.searchMagazine(magazine_address);
-        require(present == true, "Invalid address");
+        require(present == true, "Magazine not found");
         return magazines[idx];
     }
 
@@ -70,10 +68,10 @@ contract MagazineManager {
     // ---------------------- USER ONLY ----------------------
 
     function buyMagazine(address magazine_address) external payable {
-        require(msg.value >= singlePrice, "Insufficent funds");
+        require(msg.value >= singlePrice, "Insufficient funds");
         (bool m_present,, bool released ) = magazines.searchMagazine(magazine_address);
         require(m_present == true, "Magazine not found");
-        require(released == true, "Magazine not found");
+        require(released == true, "Magazine not released");
 
         (bool c_present, uint c_idx, ) = customers.searchCustomer(msg.sender);
         if(c_present){
@@ -88,9 +86,9 @@ contract MagazineManager {
     }
 
     function annualSubscribe() external payable {
-        require(msg.value >= annualPrice, "Insufficent funds");
+        require(msg.value >= annualPrice, "Insufficient funds");
        (bool present, uint idx, bool subscription) = customers.searchCustomer(msg.sender);
-       require(subscription == false, "Sender already has a subscription" );
+       require(subscription == false, "Customer already has a subscription" );
        bool success = false;
 
         if(present){
@@ -105,8 +103,9 @@ contract MagazineManager {
     }
 
     function revokeSubscribe() external {
-        (, uint idx, bool subscription) = customers.searchCustomer(msg.sender);
-        require(subscription == true, "No subscription found for sender" );
+        (bool present, uint idx, bool subscription) = customers.searchCustomer(msg.sender);
+        require(present == true, "Customer not found" );
+        require(subscription == true, "Customer has no active subscription" );
         customers.removeSubscriptionForCustomer(idx);
     }
 
@@ -124,7 +123,7 @@ contract MagazineManager {
         magazines[idx].release_date = block.timestamp * 1000;
 
         if(customers.length > 0){
-            for(uint i; i < customers.length; i++){
+            for(uint i = 0; i < customers.length; i++){
                 if(customers[i].subscription && customers[i].expire_date > block.timestamp){
                     customers.addMagazineForCustomer(i, magazine_address);
                 }
@@ -148,11 +147,13 @@ contract MagazineManager {
     }
 
     function withdraw(uint amount) external onlyOwner returns(bool success){
+        require(address(this).balance >= amount, "Insufficient funds");
         payable(owner).transfer(amount);
         success = true;
     }
 
     function splitProfit() external onlyOwner returns(bool success){
+        require(administrators.length > 0, "Empty administrators list");
         uint split_amount = address(this).balance / administrators.length;
         for(uint idx = 0; idx < administrators.length; idx++){
             payable(administrators[idx]).transfer(split_amount);
@@ -162,8 +163,6 @@ contract MagazineManager {
 
     // --------------------------------------------------------
 
-    receive() external payable {
-        emit Donation(msg.sender, msg.value);
-    }
+    receive() external payable {}
     
 }

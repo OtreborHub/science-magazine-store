@@ -20,24 +20,21 @@ library MagazineUtils {
     }
 
     function addMagazine(Magazine[] storage self, string memory title) internal returns(address new_magazine_address){
-        new_magazine_address = generateAddress(title);
         MagazineUtils.Magazine memory newMagazine;
+        uint previousLength = self.length;
+        new_magazine_address = generateAddress(title);
+
+        (bool present ,, ) = searchMagazine(self, new_magazine_address);
+        require ( present == false, "Magazine already present");
 
         newMagazine.magazine_address = new_magazine_address;
         newMagazine.title = title;
         newMagazine.release_date = 0;
         self.push(newMagazine);
 
-    }
+        bool added = self.length > previousLength;
+        require(added == true, "Magazine not added");
 
-    function addReleasedMagazine(Magazine[] storage self, string memory title, uint release_date) internal returns(address new_magazine_address){
-        new_magazine_address = generateAddress(title);
-        MagazineUtils.Magazine memory newMagazine;
-
-        newMagazine.magazine_address = new_magazine_address;
-        newMagazine.title = title;
-        newMagazine.release_date = release_date;
-        self.push(newMagazine);
     }
 
     function generateAddress(string memory value) private pure returns(address){
@@ -77,7 +74,7 @@ library CustomerUtils {
 
     function addSubscriptionForCustomer(Customer[] storage self, uint customer_idx) internal returns(bool updated){
         self[customer_idx].subscription = true;
-        self[customer_idx].expire_date = block.timestamp + 365 days;
+        self[customer_idx].expire_date = (block.timestamp + 365 days) * 1000;
         updated = true;
     }
 
