@@ -3,18 +3,17 @@ import { Menu } from '@mui/base/Menu';
 import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
 import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
 import { styled } from '@mui/system';
+import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
+import { useAppContext, useSearchContext } from '../Context';
+import { Action } from '../utilities/actions';
 import { addAdministrator, donation, readCustomer, revokeSubscription, splitProfit, withdraw } from '../utilities/contractBridge';
+import { ErrorMessage, swalError } from '../utilities/error';
+import { addressValidation, formatBalance } from '../utilities/helper';
 import { NavbarProps } from '../utilities/interfaces';
 import { Role } from '../utilities/role';
-import { useSearchContext } from '../Context';
-import { useAppContext } from '../Context';
-import { addressValidation, formatBalance } from '../utilities/helper';
-import { ethers } from 'ethers';
 import Loader from './Loader';
-import { ErrorMessage, swalError } from '../utilities/error';
-import { Action } from '../utilities/actions';
 
 export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
     const [hasSubscription, setHasSubscription] = useState<boolean>(false);

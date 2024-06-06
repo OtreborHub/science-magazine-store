@@ -1,12 +1,12 @@
 import { Search } from "@mui/icons-material";
+import ClearIcon from '@mui/icons-material/Clear';
 import { Button, Checkbox, FormControl, FormControlLabel, Grid, IconButton, Input, InputLabel, MenuItem, Select } from '@mui/material';
 import InputBase from '@mui/material/InputBase';
 import { styled } from '@mui/material/styles';
 import { ChangeEvent, useEffect, useState } from "react";
+import { useAppContext, useSearchContext } from '../../Context';
 import { SearchFormProps } from "../../utilities/interfaces";
-import { useSearchContext, useAppContext } from '../../Context';
 import { Role } from "../../utilities/role";
-import ClearIcon from '@mui/icons-material/Clear';
 
 export default function SearchForm({ handleSearch, handleClear } : SearchFormProps) {
 

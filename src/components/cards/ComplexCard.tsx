@@ -8,14 +8,14 @@ import Typography from '@mui/material/Typography';
 import { ethers } from 'ethers';
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
+import { Action } from '../../utilities/actions';
 import { buyMagazine } from '../../utilities/contractBridge';
+import { ErrorMessage, swalError } from '../../utilities/error';
 import { findMagazine } from '../../utilities/firebase';
+import { formatDate, formatNumberAddress } from '../../utilities/helper';
 import { ComplexCardProps } from '../../utilities/interfaces';
 import { getCover } from '../../utilities/mock';
-import { formatDate, formatNumberAddress } from '../../utilities/helper';
 import Loader from '../Loader';
-import { ErrorMessage, swalError } from '../../utilities/error';
-import { Action } from '../../utilities/actions';
 
 const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
 

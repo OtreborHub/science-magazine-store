@@ -1,14 +1,13 @@
 import { Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useAppContext } from "../Context";
+import '../styles/home.css';
 import { emptyMagazine, readAllMagazines } from "../utilities/contractBridge";
 import { findMagazine } from "../utilities/firebase";
 import { Magazine } from '../utilities/interfaces';
 import { Role } from "../utilities/role";
 import AdminView from "./views/AdminView";
 import UserView from "./views/UserView";
-import '../styles/home.css';
-import Loader from "./Loader";
 
 export default function Home() {
   const [lastMagazine, setLastMagazine] = useState<Magazine>(emptyMagazine);

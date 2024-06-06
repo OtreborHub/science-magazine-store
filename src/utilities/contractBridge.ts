@@ -1,11 +1,11 @@
 import { Contract, Provider, ethers, parseUnits } from "ethers";
 import Swal from "sweetalert2";
 import { contractABI } from "./abi";
+import { Action } from "./actions";
 import { ErrorMessage, swalError } from "./error";
 import { createMagazine, findMagazine } from "./firebase";
-import { Magazine } from "./interfaces";
 import { formatDate } from "./helper";
-import { Action } from "./actions";
+import { Magazine } from "./interfaces";
 
 const CONTRACT_ADDRESS: string = process.env.REACT_APP_CONTRACT_ADDRESS as string;
 let contractInstance: Contract;

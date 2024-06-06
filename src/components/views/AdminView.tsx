@@ -2,16 +2,16 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Box, Button, Grid, Typography, useMediaQuery } from "@mui/material";
 import { useEffect, useState } from 'react';
 import Swal from "sweetalert2";
+import '../../styles/view.css';
+import { Action } from '../../utilities/actions';
 import { addMagazine, emptyMagazine, readMagazineByAddress } from "../../utilities/contractBridge";
+import { ErrorMessage, swalError } from '../../utilities/error';
+import { addressValidation } from '../../utilities/helper';
 import { AdminProps, Magazine } from "../../utilities/interfaces";
 import Loader from '../Loader';
-import SearchForm from '../forms/SearchForm';
 import ComplexCard from '../cards/ComplexCard';
 import SimpleCard from "../cards/SimpleCard";
-import '../../styles/view.css';
-import { ErrorMessage, swalError } from '../../utilities/error';
-import { Action } from '../../utilities/actions';
-import { addressValidation } from '../../utilities/helper';
+import SearchForm from '../forms/SearchForm';
 
 export default function AdminView({ notReleasedMagazines: notReleasedNumbers, releasedMagazines: releasedNumbers }: AdminProps) {
   const isMobile = useMediaQuery('(max-width: 750px)');
