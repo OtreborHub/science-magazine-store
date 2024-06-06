@@ -2,7 +2,8 @@ import { Provider, ethers } from "ethers";
 import { createContext, useContext, ReactNode, useState } from "react";
 import { Role } from "./utilities/role";
 
-const infuraProvider: Provider = new ethers.InfuraProvider("sepolia" , process.env.INFURA_API_KEY);
+const infuraApiKey = process.env.REACT_APP_INFURA_API_KEY as string;
+const infuraProvider: Provider = new ethers.InfuraProvider("sepolia" , infuraApiKey);
 
 const appContext = createContext({
   updateProvider: (provider:Provider) => {},
@@ -17,7 +18,7 @@ const appContext = createContext({
   balance: 0,
   contractBalance: 0,
   role: Role.NONE
-})
+});
 
 const searchContext = createContext({
   search: () => {},

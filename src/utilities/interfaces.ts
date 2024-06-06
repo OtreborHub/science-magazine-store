@@ -30,13 +30,13 @@ interface Subscription {
 }
 
 interface UserProps {
-    lastNumber: Magazine;
-    releasedNumbers: Magazine[];
+    lastMagazine: Magazine;
+    releasedMagazines: Magazine[];
 }
 
 interface AdminProps {
-    notReleasedNumbers: Magazine[];
-    releasedNumbers: Magazine[];
+    notReleasedMagazines: Magazine[];
+    releasedMagazines: Magazine[];
 }
 
 interface CustomSelectProps {
@@ -44,13 +44,20 @@ interface CustomSelectProps {
     handleChanges: () => void;
 }
 
-interface SearchProps {
+interface SearchFormProps {
     handleSearch: (event: any) => any;
     handleClear: (event: any) => any;
+}
+
+interface MainFormProps {
+    singlePrice: number,
+    annualPrice: number
+    lastMagazine: Magazine
+    handleSubmit: (event: any) => any;
 }
 
 interface LoaderProps {
     loading: boolean
 }
 
-export type { NavbarProps, ErrorProps, ComplexCardProps, Magazine, Subscription, UserProps, AdminProps, CustomSelectProps, SearchProps, LoaderProps }
+export type { NavbarProps, ErrorProps, ComplexCardProps, Magazine, Subscription, UserProps, AdminProps, CustomSelectProps, SearchFormProps, MainFormProps, LoaderProps }

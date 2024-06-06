@@ -1,4 +1,5 @@
-export const contractABI = [
+export const contractABI = 
+[
 	{
 		"inputs": [],
 		"stateMutability": "nonpayable",
@@ -21,25 +22,6 @@ export const contractABI = [
 			}
 		],
 		"name": "BuyOrder",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
-				"internalType": "address",
-				"name": "user_address",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "Donation",
 		"type": "event"
 	},
 	{

@@ -5,12 +5,15 @@ import Swal from "sweetalert2";
 import { addMagazine, emptyMagazine, readMagazineByAddress } from "../../utilities/contractBridge";
 import { AdminProps, Magazine } from "../../utilities/interfaces";
 import Loader from '../Loader';
-import SearchForm from '../main/SearchForm';
+import SearchForm from '../forms/SearchForm';
 import ComplexCard from '../cards/ComplexCard';
 import SimpleCard from "../cards/SimpleCard";
 import '../../styles/view.css';
+import { ErrorMessage, swalError } from '../../utilities/error';
+import { Action } from '../../utilities/actions';
+import { addressValidation } from '../../utilities/helper';
 
-export default function AdminView({ notReleasedNumbers, releasedNumbers }: AdminProps) {
+export default function AdminView({ notReleasedMagazines: notReleasedNumbers, releasedMagazines: releasedNumbers }: AdminProps) {
   const isMobile = useMediaQuery('(max-width: 750px)');
   const [searchedMagazine, setSearchedMagazine] = useState<Magazine>(emptyMagazine);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -43,20 +46,18 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
 
   const handleSearch = (event: any) => {
     let magazine_address = event.target.address.value;
-    if(magazine_address !== ""){
+    if(addressValidation(magazine_address)){
       setIsLoading(true);
-      readMagazineByAddress(magazine_address).then((response) => {
-        let magazines = response.responseMagazines;
+      readMagazineByAddress(magazine_address).then((magazines) => {
         if(magazines.length > 0){
           setSearchedMagazine(magazines[0]);
-          setIsLoading(false);
         } else {
-          setIsLoading(false);
-          swalError();    
+          Swal.fire("Nessun magazine trovato", "info");
         }
+        setIsLoading(false);
       });
     } else {
-      swalError();
+      swalError(ErrorMessage.IO, Action.SRC_ADDR_MAG);    
     }
     event.preventDefault();
   }
@@ -64,13 +65,6 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
   const handleClear = () => {
     setSearchedMagazine(emptyMagazine);
   }
-
-  const swalError = () => Swal.fire({
-    title: "Opsss..",
-    icon: "error",
-    text: "Qualcosa è andato storto, ricontrolla l'indirizzo inserito o riprova più tardi!",
-    confirmButtonColor: "#3085d6",
-  });
 
   return (
 
@@ -101,9 +95,6 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
                   endIcon={<AddCircleIcon />}>
                   <strong>NUOVO</strong>
           </Button>
-            {/* <IconButton size="large" onClick={() => newMagazine()}>
-                <AddCircleIcon fontSize="large" htmlColor="#e6c830" />
-            </IconButton> */}
           </Grid>
         </Grid>
       </Box>
@@ -140,7 +131,6 @@ export default function AdminView({ notReleasedNumbers, releasedNumbers }: Admin
       </div>
 
       <Loader loading={isLoading}/>
-
     </>
   );
   

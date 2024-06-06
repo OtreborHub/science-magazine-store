@@ -1,10 +1,9 @@
 import { initializeApp } from "firebase/app";
 import { Database, DatabaseReference, child, getDatabase, ref, set, get, update } from "firebase/database";
 
-const FIREBASE_API_KEY: string = process.env.REACT_APP_FIREBASE_APY_KEY as string;
 
 const firebaseConfig = {
-  apiKey: FIREBASE_API_KEY,
+  apiKey: "AIzaSyBLaXHqeS0rpdroaUOyJ-npB9X2Gv8vB-g",
   authDomain: "store-magazine.firebaseapp.com",
   databaseURL: "https://store-magazine-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "store-magazine",

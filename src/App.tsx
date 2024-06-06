@@ -4,13 +4,13 @@ import { Provider, ethers } from "ethers";
 import { useEffect } from 'react';
 import './App.css';
 import { useAppContext } from "./Context";
-import Navbar from './components/main/Navbar';
-import Home from './components/main/Home';
+import Home from './components/Home';
+import Navbar from "./components/Navbar";
+import ErrorView from "./components/views/ErrorView";
 import getContractInstance, { readAdministrator, readContractBalance, readCustomer, readOwner } from "./utilities/contractBridge";
 import { ErrorMessage } from "./utilities/error";
 import { firebaseInit } from "./utilities/firebase";
 import { getRole } from "./utilities/role";
-import ErrorView from "./components/views/ErrorView";
 
 declare global {
   interface Window {
@@ -51,11 +51,23 @@ export default function App() {
   };
 
   async function connectWallet() {
-    if(window.ethereum){
-      try{
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        appContext.updateProvider(provider);
+    try{
+      if(window.ethereum){
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          appContext.updateProvider(provider);
 
+          const signer = await provider.getSigner();
+          appContext.updateSigner(signer.address);
+
+          setAccountBalance(provider, signer.address);
+          appContext.updateChainId(parseInt(window.ethereum.chainId));
+
+          init(signer.address);
+        
+      } else {
+        let provider = new ethers.InfuraProvider("sepolia" , process.env.INFURA_API_KEY);
+        appContext.updateProvider(provider);
+        
         const signer = await provider.getSigner();
         appContext.updateSigner(signer.address);
 
@@ -63,14 +75,10 @@ export default function App() {
         appContext.updateChainId(parseInt(window.ethereum.chainId));
 
         init(signer.address);
-      } catch {
-        disconnect();
-        console.log("Error retrieving BrowserProvider");
       }
-    } else {
-      console.error('Browser Provider not available: install Metamask extension on your browser');
-      let provider = new ethers.InfuraProvider("sepolia" , process.env.INFURA_API_KEY);
-      appContext.updateProvider(provider);
+    } catch {
+      disconnect();
+      console.log("Error retrieving BrowserProvider");
     }
   }
 
@@ -106,7 +114,7 @@ export default function App() {
     if(!provider || !signer) return;
 
     await provider.getBalance(signer).then((balance: bigint) => {
-      const bal = parseFloat(ethers.formatEther(balance))
+      const bal = parseFloat(ethers.formatEther(balance));
       console.log(`balance available: ${bal.toFixed(18)} ETH`);
       appContext.updateBalance(bal);
     });
@@ -117,8 +125,7 @@ export default function App() {
 
       <Navbar connect={connectWallet}/>
       { appContext.signer && appContext.chainId === SEPOLIA_CHAIN_ID && <Home /> }
-      { !appContext.signer && <ErrorView errorMessage={ErrorMessage.WL}/> }
-      { appContext.signer && appContext.chainId !== SEPOLIA_CHAIN_ID && <ErrorView errorMessage={ErrorMessage.SP}/> }
+      { (!appContext.signer || appContext.chainId !== SEPOLIA_CHAIN_ID) && <ErrorView errorMessage={ErrorMessage.WL}/> }
 
     </div>
   );

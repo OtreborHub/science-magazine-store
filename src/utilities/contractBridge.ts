@@ -1,25 +1,25 @@
 import { Contract, Provider, ethers, parseUnits } from "ethers";
 import Swal from "sweetalert2";
 import { contractABI } from "./abi";
-import { ErrorMessage } from "./error";
+import { ErrorMessage, swalError } from "./error";
 import { createMagazine, findMagazine } from "./firebase";
 import { Magazine } from "./interfaces";
 import { formatDate } from "./helper";
+import { Action } from "./actions";
 
 const CONTRACT_ADDRESS: string = process.env.REACT_APP_CONTRACT_ADDRESS as string;
 let contractInstance: Contract;
-
-type ContractResponse<T> = {
-  responseMagazines: T[],
-  error: Error | string
-}
 
 export const emptyMagazine: Magazine = { address: "", title: "", release_date: 0, content: "", cover: "", summary: "" }
 
 export default function getContractInstance(provider: Provider, signer: string) {
   if (!contractInstance) {
-    contractInstance = new Contract(CONTRACT_ADDRESS, contractABI, provider);
-    addContractListeners(signer);
+    try {
+      contractInstance = new Contract(CONTRACT_ADDRESS, contractABI, provider);
+      addContractListeners(signer);
+    } catch {
+      console.log("Errore durante la creazione dell'istanza del contratto: verificare l'indirizzo del contratto, l'abi e il provider utilizzato");
+    }
   }
 }
 
@@ -34,12 +34,18 @@ function addContractListeners(signer: string) {
 
           Swal.fire({
             title: "Ordine ricevuto!",
-            text: "Puoi visitare il numero che hai appena acquistato qui: \n" + ipfsURL,
+            text: "Puoi visitare il numero che hai appena acquistato qui: \n\n" + ipfsURL + "\n\nPremi OK per ricaricare la pagina",
             icon: "success",
             confirmButtonColor: "#3085d6"
+          }).then((result) => {
+            if(result.isConfirmed){
+              window.location.reload();
+            }
           });
-          console.log("Buy Order Event: { magazine_address: " + magazine_address + "}");
         }
+      }).catch(error => {
+        console.log("firebase error: " + error);
+        swalError(ErrorMessage.FE, Action.FIREBASE_DATA);
       });
     }
 
@@ -49,7 +55,7 @@ function addContractListeners(signer: string) {
     if (customer === signer) {
       Swal.fire({
         title: "Abbonamento effettuato!",
-        text: "Il tuo abbonamento scadra il: " + formatDate(Number(expire_date)) + ". \nPremi OK per ricaricare la pagina",
+        text: "Il tuo abbonamento scadrà il: " + formatDate(Number(expire_date)) + ".\n\nPremi OK per ricaricare la pagina",
         icon: "success",
         confirmButtonColor: "#3085d6"
       }).then((result) => {
@@ -65,7 +71,7 @@ function addContractListeners(signer: string) {
     createMagazine(magazine_address).then(response => {
         Swal.fire({
           title: "Nuovo numero!",
-          text: "Indirizzo del magazine: \n" + magazine_address + ". \nPremi OK per ricaricare la pagina",
+          text: "Indirizzo del magazine creato:\n\n" + magazine_address + "\n\nPremi OK per ricaricare la pagina",
           icon: "success",
           confirmButtonColor: "#3085d6"
         }).then((result) => {
@@ -73,15 +79,17 @@ function addContractListeners(signer: string) {
             window.location.reload();
           }
         });
-      })
-      .catch(error => console.log(error));
+      }).catch(error => {
+        console.log("firebase error: " + error);
+        swalError(ErrorMessage.FE, Action.FIREBASE_DATA);
+      });
   });
 
   contractInstance.on("ReleaseMagazine", (magazine_address, event) => {
     //Firebase update in SimpleCard.tsx
     Swal.fire({
       title: "Nuovo numero rilasciato!",
-      text: "Indirizzo del magazine: " + magazine_address + ". \nPremi OK per ricaricare la pagina",
+      text: "Indirizzo del magazine rilasciato:\n\n" + magazine_address + "\n\nPremi OK per ricaricare la pagina",
       icon: "success",
       confirmButtonColor: "#3085d6"
     }).then((result) => {
@@ -90,19 +98,20 @@ function addContractListeners(signer: string) {
       }
     });
   });
-
-
 }
 
-export async function readAllMagazines(magazineCount: number): Promise<ContractResponse<Magazine>> {
+//Quando i magazines saranno troppi e non si vorrà fetchare tanti magazines alla volta
+//sarà sufficiente modificare la variabile d'ambiente FROM, 
+//per consentire all'applicazione di estrarre magazines a partire dall'indice indicato
+//default REACT_APP_FROM = 0
+export async function readAllMagazines(): Promise<Magazine[]> {
   var magazines: Magazine[] = [];
-  let lastIndex = 0;
-  const FROM = 0;
-  // const TO = 12;
+  let from : number = Number(process.env.REACT_APP_FROM as string);
 
   try {
+    const magazineCount: number = Number(await readMagazineCount());
     if (contractInstance) {
-      for (let i = FROM; i < magazineCount; i++) {
+      for (let i = from; i < magazineCount; i++) {
         const result = await contractInstance.magazines(i);
         if (result) {
 
@@ -116,20 +125,23 @@ export async function readAllMagazines(magazineCount: number): Promise<ContractR
           }
 
           magazines.push(magazine);
-          lastIndex = i;
         } else {
           break;
         }
       }
     }
 
-    return { responseMagazines: magazines, error: "" };
-  } catch {
-    return { responseMagazines: [], error: ErrorMessage.RD };
+    console.log("reading " + magazines.length + " magazines");
+    return magazines;
+
+  } catch (error: any) {
+    console.log("error occurred during reading data process from contract");
+    swalError(ErrorMessage.RD, Action.SRC_ALL_MAG, error);
+    return [];
   } 
 }
 
-export async function readCustomerMagazine(): Promise<ContractResponse<Magazine>> {
+export async function readCustomerMagazine(): Promise<Magazine[]> {
   var magazines: Magazine[] = [];
   try {
     if (contractInstance) {
@@ -158,13 +170,14 @@ export async function readCustomerMagazine(): Promise<ContractResponse<Magazine>
       }
     }
     
-    return { responseMagazines: magazines, error: "" };
+    return magazines;
   } catch (error: any) {
-    return { responseMagazines: [], error: ErrorMessage.RD };
+    swalError(ErrorMessage.RD, Action.SRC_CUSTOM_MAG, error);
+    return [];
   }
 }
 
-export async function readMagazineByAddress(magazine_address: string): Promise<ContractResponse<Magazine>> {
+export async function readMagazineByAddress(magazine_address: string): Promise<Magazine[]> {
   var magazines: Magazine[] = [];
   try {
     if (contractInstance) {
@@ -182,59 +195,90 @@ export async function readMagazineByAddress(magazine_address: string): Promise<C
       }
     }
     
-    return { responseMagazines: magazines, error: "" };
+    return magazines;
   } catch (error: any) {
-    return { responseMagazines: [], error: ErrorMessage.RD };
+    swalError(ErrorMessage.RD, Action.SRC_ADDR_MAG, error);
+    return [];
   }
 }
 
 export async function readContractBalance() {
   if (contractInstance) {
-    return await contractInstance.getBalance()
+    try {
+      return await contractInstance.getBalance();
+    } catch (error: any) {
+      swalError(ErrorMessage.RD, Action.RD_DATA, error);
+    }
   }
 }
 
 export async function readMagazineCount() {
   if (contractInstance) {
-    return await contractInstance.countMagazines()
+    try {
+      return await contractInstance.countMagazines();
+    } catch (error: any) {
+      swalError(ErrorMessage.RD, Action.RD_DATA, error);
+    }
   }
 }
 
 export async function readCustomer() {
   if (contractInstance) {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-    const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
+    try{
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
 
-    return await signerContract.isCustomer();
+      return await signerContract.isCustomer();
+    
+    } catch (error: any) {
+      swalError(ErrorMessage.RD, Action.RD_DATA, error);
+    }
   }
 }
 
 export async function readAdministrator() {
   if (contractInstance) {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-    const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
+    try{
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
 
-    return await signerContract.isAdministrator();
+      return await signerContract.isAdministrator();
+    
+    } catch (error: any) {
+      swalError(ErrorMessage.RD, Action.RD_DATA, error);
+    }
   }
 }
 
 export async function readOwner() {
   if (contractInstance) {
-    return await contractInstance.owner();
+    try{
+      return await contractInstance.owner();
+    } catch (error: any) {
+      swalError(ErrorMessage.RD, Action.RD_DATA, error);
+    }
   }
 }
 
 export async function readSinglePrice() {
   if (contractInstance) {
-    return await contractInstance.singlePrice();
+    try{
+      return await contractInstance.singlePrice();
+    } catch (error: any) {
+      swalError(ErrorMessage.RD, Action.RD_DATA, error);
+    }
   }
 }
 
 export async function readAnnualPrice() {
   if (contractInstance) {
-    return await contractInstance.annualPrice();
+    try{
+      return await contractInstance.annualPrice();
+    } catch (error: any) {
+      swalError(ErrorMessage.RD, Action.RD_DATA, error);
+    }
   }
 }
 
@@ -247,14 +291,8 @@ export async function addAdministrator(address: string) {
   
       return await signerContract.addAdmin(address);
 
-    } catch (error) {
-      console.log("addAdmin action: " + ErrorMessage.TR);
-      Swal.fire({
-        title: "Qualcosa è andato storto!",
-        icon: "error",
-        text: "Si è verificato un errore durante l'inserimento dell'admin: Riprova più tardi.",
-        confirmButtonColor: "#3085d6",
-      });
+    } catch (error: any) {
+      swalError(ErrorMessage.TR, Action.ADD_ADMIN, error)
     }
   }
 }
@@ -269,14 +307,9 @@ export async function addMagazine(title: string) {
 
       return await signerContract.addMagazine(title);
 
-    } catch (error) {
+    } catch (error: any) {
       console.log("addMagazine action: " + ErrorMessage.TR);
-      Swal.fire({
-        title: "Qualcosa è andato storto!",
-        icon: "error",
-        text: "Si è verificato un errore durante l'inserimento del magazine: Riprova più tardi.",
-        confirmButtonColor: "#3085d6",
-      });
+      swalError(ErrorMessage.TR, Action.ADD_MAG, error)
     }
   }
 }
@@ -290,14 +323,9 @@ export async function releaseMagazine(address: string) {
       const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
   
       return await signerContract.releaseMagazine(address);
-    } catch (error) {
+    } catch (error: any) {
       console.log("releaseMagazine action: " + ErrorMessage.TR);
-      Swal.fire({
-        title: "Qualcosa è andato storto!",
-        icon: "error",
-        text: "Si è verificato un errore durante il rilascio del magazine: Riprova più tardi.",
-        confirmButtonColor: "#3085d6",
-      });
+      swalError(ErrorMessage.TR, Action.RELEASE_MAG, error);
     }
   }
 
@@ -314,24 +342,8 @@ export async function buyMagazine(address: string, value: number) {
       return await signerContract.buyMagazine(address, options)
 
     } catch (error: any) {
-      if(error.shortMessage.includes("execution reverted")){
-        const errorMessage = error.shortMessage.split(":")[1].trim().replace("\"", "").slice(0, -1);
-        if(errorMessage === ErrorMessage.MAO){
-          Swal.fire({
-            title: "Magazine già acquistato!",
-            icon: "error",
-            text: "Puoi consultare i tuoi magazine dal menu ruolo",
-            confirmButtonColor: "#3085d6",
-          });
-        } else {
-          Swal.fire({
-            title: "Qualcosa è andato storto!",
-            icon: "error",
-            text: "Si è verificato un errore durante l'acquisto del magazine: Riprova più tardi.",
-            confirmButtonColor: "#3085d6",
-          }); 
-        }
-      }
+      console.log("buyMagazine action: " + ErrorMessage.TR);
+      swalError(ErrorMessage.TR, Action.BUY_MAG, error);
     }
   }
 }
@@ -348,13 +360,8 @@ export async function annualSubscription(value: number) {
       return await signerContract.annualSubscribe(options);
 
     } catch (error) {
-      console.log("annualSubscribe action: " + ErrorMessage.TR);
-      Swal.fire({
-        title: "Qualcosa è andato storto!",
-        icon: "error",
-        text: "Si è verificato un errore durante la sottoscrizione annuale: Riprova più tardi.",
-        confirmButtonColor: "#3085d6",
-      });
+      console.log("annualSubscription action: " + ErrorMessage.TR);
+      swalError(ErrorMessage.TR, Action.SUB, error);
     }
   }
 }
@@ -362,7 +369,6 @@ export async function annualSubscription(value: number) {
 export async function revokeSubscription() {
   if (contractInstance) {
     try{
-
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
@@ -370,13 +376,8 @@ export async function revokeSubscription() {
       return await signerContract.revokeSubscribe();
 
     } catch (error) {
-      console.log("revokeSubscribe action: " + ErrorMessage.TR);
-      Swal.fire({
-        title: "Qualcosa è andato storto!",
-        icon: "error",
-        text: "Si è verificato un errore durante l'operazione di revoca: Riprova più tardi.",
-        confirmButtonColor: "#3085d6",
-      });
+      console.log("revokeSubscription action: " + ErrorMessage.TR);
+      swalError(ErrorMessage.TR, Action.REVOKE_SUB, error);
     }
   }
 }
@@ -384,17 +385,10 @@ export async function revokeSubscription() {
 export async function withdraw(amount: string) {
   if (contractInstance) {
     try {
-
       return await contractInstance.withdraw(amount);
-
     } catch (error) {
-      console.log("withdraw action: " + ErrorMessage.TR);
-      Swal.fire({
-        title: "Qualcosa è andato storto!",
-        icon: "error",
-        text: "Si è verificato un errore durante l'operazione di prelievo: Riprova più tardi.",
-        confirmButtonColor: "#3085d6",
-      });
+      console.log("witdraw action: " + ErrorMessage.TR);
+      swalError(ErrorMessage.TR, Action.WITHDRAW, error);
     }
   }
 }
@@ -402,22 +396,15 @@ export async function withdraw(amount: string) {
 export async function splitProfit() {
   if (contractInstance) {
     try {
-      
       return await contractInstance.splitProfit();
-
     } catch (error) {
       console.log("splitProfit action: " + ErrorMessage.TR);
-      Swal.fire({
-        title: "Qualcosa è andato storto!",
-        icon: "error",
-        text: "Si è verificato un errore durante l'operazione di split Profit: Riprova più tardi.",
-        confirmButtonColor: "#3085d6",
-      });
+      swalError(ErrorMessage.TR, Action.SPLIT_PROFIT, error);
     }
   }
 }
 
-export async function donateETH(value: number) {
+export async function donation(value: number) {
   if (contractInstance) {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
@@ -427,19 +414,13 @@ export async function donateETH(value: number) {
       let tx = await signer.sendTransaction({
         to: CONTRACT_ADDRESS,
         value: amount,
-        // gasLimit: 21000 // Gas limit per transazioni standard
       });
       await tx.wait();
       return true;
 
     } catch (error) {
-      console.log("donation action: " + ErrorMessage.TR);
-      Swal.fire({
-        title: "Qualcosa è andato storto!",
-        icon: "error",
-        text: "Si è verificato un errore durante l'operazione di donazione: Riprova più tardi.",
-        confirmButtonColor: "#3085d6",
-      });
+      console.log("donateETH action: " + ErrorMessage.TR);
+      swalError(ErrorMessage.TR, Action.DONATION, error);
       return false;
     }
   }

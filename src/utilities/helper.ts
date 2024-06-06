@@ -16,9 +16,13 @@ export const formatBalance = (balance: number) => {
 }
 
 export function getLastDayOfMonth(year: number, month: number): number {
-    return new Date(year, month - 1, 1).getTime();
+    return new Date(year, month, 1).getTime();
 }
 
 export function getFirstDayOfMonth(year: number, month: number): number {
-    return new Date(year, month, 0).getTime();
+    return new Date(year, month, 0, 23, 59, 59).getTime();
+}
+
+export const addressValidation = (address: string) => {
+    return address !== "" && address.includes("0x") && address.length === 42;
 }

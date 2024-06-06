@@ -13,6 +13,8 @@ import { findMagazine, updateMagazine } from '../../utilities/firebase';
 import { Magazine } from '../../utilities/interfaces';
 import Loader from '../Loader';
 import { formatDate, formatNumberAddress } from '../../utilities/helper';
+import { ErrorMessage, swalError } from '../../utilities/error';
+import { Action } from '../../utilities/actions';
 
 const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
 
@@ -26,15 +28,21 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
   useEffect(() => {
-    //Firebase data
-    findMagazine(address).then(
-      response => {
-        if(response.exists()) {
-          setSummary(response.val().summary);
-          setContent(response.val().content);
-        }
-      })
+    getMagazine();
   }, [])
+
+  async function getMagazine(){
+    try {
+      //Firebase data
+      const response = await findMagazine(address);
+      if(response.exists()){
+        setSummary(response.val().summary);
+        setContent(response.val().content); 
+      }
+    } catch {
+      swalError(ErrorMessage.FE, Action.FIREBASE_DATA);
+    }
+  }
   
   function release() {
     Swal.fire({
@@ -60,12 +68,7 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
             saveReleasedMagazine( coverURL, contentURL, summary );
           });
         } else {
-          Swal.fire({
-            title: "Parametri di input non validi", 
-            text: "Ricorda che i primi due campi devono essere risorse IPFS.", 
-            icon: "error",
-            confirmButtonColor: "#3085d6"
-          });
+          swalError(ErrorMessage.IO, Action.RELEASE_MAG)
         }
       }
 
@@ -75,11 +78,15 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
   }
 
   function read(){
-    const pdfUrl = IPFSBaseUrl + content;
+    const pdfUrl = content;
     const cid = content.split("?")[0];
     const name = content.split("?")[1];
-    console.log("opening " + cid + " filename: " + name)
-    window.open(pdfUrl, "_blank");
+    console.log("opening " + cid + " filename: " + name);
+    if(pdfUrl.includes(IPFSBaseUrl)){
+      window.open(pdfUrl, "_blank");
+    } else {
+      swalError(ErrorMessage.RD, Action.ADD_ADMIN);
+    }
   }
 
   async function saveReleasedMagazine(cover: string, content: string, summary: string){

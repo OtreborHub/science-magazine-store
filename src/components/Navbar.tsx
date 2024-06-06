@@ -2,11 +2,11 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import logo from '../../assets/logo.svg';
-import { NavbarProps } from '../../utilities/interfaces';
-import { formatNumberAddress } from '../../utilities/helper';
+import logo from '../assets/logo.svg';
+import { useAppContext } from '../Context';
+import { NavbarProps } from '../utilities/interfaces';
 import DropdownMenu from './Menu';
-import { useAppContext } from '../../Context';
+import { formatNumberAddress } from '../utilities/helper';
 
 export default function Navbar({connect: connectWallet}: NavbarProps) {
   const appContext = useAppContext();

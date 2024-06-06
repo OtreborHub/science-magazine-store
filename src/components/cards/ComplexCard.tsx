@@ -14,6 +14,8 @@ import { ComplexCardProps } from '../../utilities/interfaces';
 import { getCover } from '../../utilities/mock';
 import { formatDate, formatNumberAddress } from '../../utilities/helper';
 import Loader from '../Loader';
+import { ErrorMessage, swalError } from '../../utilities/error';
+import { Action } from '../../utilities/actions';
 
 const IPFSBaseUrl: string = process.env.REACT_APP_IPFS_BASEURL as string;
 
@@ -26,16 +28,22 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
   const [isLoading, setIsLoading] = useState<boolean>(false);
   
   useEffect(() => {
-    //Firebase data
-    findMagazine(magazine.address).then(
-      response => {
-        if(response.exists()) {
-          setCover(response.val().cover);
-          setSummary(response.val().summary);
-          setContent(response.val().content);
-        }
-      })
+    getMagazine();
   }, [])
+  
+  async function getMagazine(){
+    try{
+      //Firebase data
+      const response = await findMagazine(magazine.address);
+      if(response.exists()) {
+        setCover(response.val().cover);
+        setSummary(response.val().summary);
+        setContent(response.val().content);
+      }
+    } catch {
+      swalError(ErrorMessage.FE, Action.FIREBASE_DATA);
+    }
+  }
 
   const formatETH = () => {
     return ethers.formatEther(singlePrice);
@@ -58,11 +66,15 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
   }
 
   function read(){
-    const pdfUrl = IPFSBaseUrl + content;
+    const pdfUrl = content;
     const cid = content.split("?")[0];
     const name = content.split("?")[1];
-    console.log("opening " + cid + " filename: " + name)
-    window.open(pdfUrl, "_blank");
+    console.log("opening " + cid + " filename: " + name);
+    if(pdfUrl.includes(IPFSBaseUrl)){
+      window.open(pdfUrl, "_blank");
+    } else {
+      swalError(ErrorMessage.RD, Action.ADD_ADMIN);
+    }
   }
 
   const subheader = 

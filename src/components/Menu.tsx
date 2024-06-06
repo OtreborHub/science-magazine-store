@@ -5,17 +5,19 @@ import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
 import { styled } from '@mui/system';
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
-import { addAdministrator, donateETH, readCustomer, revokeSubscription, splitProfit, withdraw } from '../../utilities/contractBridge';
-import { NavbarProps } from '../../utilities/interfaces';
-import { Role } from '../../utilities/role';
-import { useSearchContext } from '../../Context';
-import { useAppContext } from '../../Context';
-import { formatBalance } from '../../utilities/helper';
+import { addAdministrator, donation, readCustomer, revokeSubscription, splitProfit, withdraw } from '../utilities/contractBridge';
+import { NavbarProps } from '../utilities/interfaces';
+import { Role } from '../utilities/role';
+import { useSearchContext } from '../Context';
+import { useAppContext } from '../Context';
+import { addressValidation, formatBalance } from '../utilities/helper';
 import { ethers } from 'ethers';
-import Loader from '../Loader';
+import Loader from './Loader';
+import { ErrorMessage, swalError } from '../utilities/error';
+import { Action } from '../utilities/actions';
 
 export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
-    const [hasSubscription, setHasSubscription] = useState<boolean>(false)
+    const [hasSubscription, setHasSubscription] = useState<boolean>(false);
     const searchContext = useSearchContext();
     const appContext = useAppContext();
 
@@ -25,32 +27,21 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
       if(appContext.role === Role.CUSTOMER){
         getSubscription();
       }
-    }, [appContext.provider, appContext.role])
+    }, [appContext.role])
   
     async function getSubscription() {
       try {
         const customerResult = await readCustomer();
         setHasSubscription((customerResult[2]));
       } catch {
-        Swal.fire({
-          title: "Opss...", 
-          text: "Qualcosa è andato storto durante il recupero delle informazioni dal contratto.\nRiprova più tardi.", 
-          icon: "error",
-          confirmButtonColor: "#3085d6"
-        })
+        console.log("Errore durante la lettura dell'account cliente");
       }
     }
   
   function withdrawBalance() {
-    let minWithdraw = 0.000001;
     let balance = parseFloat(ethers.formatEther(appContext.contractBalance));
-    if (balance === 0 || balance < minWithdraw) {
-      Swal.fire({
-        title: "Impossibile eseguire l'operazione",
-        text: "Attenzione, attualmente sul contratto sono presenti meno di: " + minWithdraw + " ETH",
-        icon: "error",
-        showCloseButton: true
-      })
+    if (balance === 0) {
+      swalError(ErrorMessage.IF, Action.WITHDRAW);
     } 
     else {
       const inputValue = 0.000000;
@@ -119,13 +110,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
     let minWithdraw = 0.000001;
     let balance = parseFloat(ethers.formatEther(appContext.contractBalance));
     if (balance === 0 || balance < minWithdraw) {
-      Swal.fire({
-        title: "Impossibile eseguire l'operazione",
-        text: "Attenzione, Attualmente sul contratto sono presenti meno di: " + minWithdraw + " ETH",
-        icon: "error",
-        confirmButtonColor: "#3085d6",
-        showCloseButton: true
-      })
+      swalError(ErrorMessage.IF, Action.SPLIT_PROFIT);
     } 
     else {
       Swal.fire({
@@ -162,7 +147,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
       showCloseButton: true
     }).then(async (result) => {
       if (result.isConfirmed) {
-        if(result.value !== "" && result.value.includes("0x")){
+        if(addressValidation(result.value)){
           setIsLoading(true);
           addAdministrator(result.value).then((res)=> {
             setIsLoading(false);
@@ -174,12 +159,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
             });
           });
         } else {
-          Swal.fire({
-            title:"Indizzo non valido!", 
-            text: "", 
-            icon: "error",
-            confirmButtonColor: "#3085d6"
-          });
+          swalError(ErrorMessage.IO, Action.ADD_ADMIN);
         }
       } 
     })
@@ -199,10 +179,21 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
           setIsLoading(true);
           revokeSubscription().then((res)=> {
             setIsLoading(false);
-            Swal.fire("A presto!", "", 'success');
+            Swal.fire({
+              title: "A presto!",
+              text: "Premi OK per ricaricare la pagina",
+              icon: "success",
+              confirmButtonColor: "#3085d6"
+            }).then((result) => {
+              if(result.isConfirmed){
+                window.location.reload();
+              }
+            });
           });
         }
       })
+    } else {
+      swalError(ErrorMessage.IF);
     }
   }
 
@@ -224,10 +215,10 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
               <input
                 type="number"
                 placeholder="${placeholder}"
-                value="${inputValue.toFixed(6)} ETH"
+                value="${inputValue.toFixed(6)}"
                 step="${inputStep}"
                 class="swal2-input"
-                id="range-value">`,
+                id="range-value"> ETH`,
             input: 'range',
             inputValue,
             inputAttributes: {
@@ -255,43 +246,30 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
             },
     
           }).then(async (result) => {
-            if (result.isConfirmed && result.value > 0) {
-              if(result.value < appContext.balance){
+            if (result.isConfirmed) {
+              if(result.value > 0 && result.value < appContext.balance){
                 setIsLoading(true);
-                donateETH(result.value).then((res)=> {
+                donation(result.value).then((success)=> {
                   setIsLoading(false);
-                  if(res){
+                  if(success){
                     Swal.fire({
                       icon: "success",
                       title: "Grazie mille!",
                       text: "Il tuo aiuto è molto apprezzato da tutto il team di Technology Innovation!",
                       confirmButtonColor: "#3085d6",
                       showCloseButton: true
-                    })
-                  } else {
-                    Swal.fire({
-                      title: "Qualcosa è andato storto!",
-                      icon: "error",
-                      text: "Si è verificato un errore durante l'invio della donazione.",
-                      confirmButtonColor: "#3085d6",
-                    })
+                    });
                   }
                 });
             } else {
-              Swal.fire({
-                title: "Errore",
-                text: "Attenzione, il tuo bilancio è inferiore alla donazione inviata",
-                showCloseButton: true
-              })
+              swalError(ErrorMessage.IF, Action.DONATION);
             }
           }})
         } else {
-          Swal.fire({
-            title: "Errore",
-            text: "Attenzione, il tuo bilancio è inferiore alla donazione minima di: " + minDonation + " ETH",
-            showCloseButton: true
-          })
+          swalError(ErrorMessage.IF, Action.MIN_DONATION);
         }
+      } else {
+        swalError(ErrorMessage.IF);
       }
   }
 
@@ -310,7 +288,6 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
             <MenuItem onClick={() => donate()}>Considera una donazione!</MenuItem>
         </Menu>
         }
-
 
         {appContext.role === Role.OWNER &&
         <Menu slots={{ listbox: Listbox }}>
