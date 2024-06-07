@@ -10,7 +10,7 @@ Due smart contract Solidity, MagazineManager e MagazineManagerUtil, hanno lo sco
 E' lo smart contract principale che regolamenta l'intero processo di creazione e pubblicazione di un magazine, aggiunta di nuovi amministratori, e altre funzionalità che vedremo in dettaglio di seguito.
 Iniziamo analizzando le storage variable e le strutture dati.
   
-![image](https://github.com/OtreborHub/science-magazine-store/assets/138629331/0b63e92b-a044-4283-879b-6120f0e7bb73)
+![image](https://github.com/OtreborHub/science-magazine-store/assets/138629331/2063561c-2575-43b6-ab70-ffea0b239163)
 
 >- **balance**: (built-in) bilancio del contratto<br>
 >- **magazines**: array dei Magazine complessivi<br>
@@ -28,7 +28,7 @@ Di seguito esaminiamo le strutture dati utilizzate nel contratto.
 
 **Magazine**
 
-![alt text](./readmeimg/image-2.png)
+![image](https://github.com/OtreborHub/science-magazine-store/assets/138629331/c8bb1ca3-1f3e-480a-a784-77ddeeafc509)
 
 >- **magazine_address**: rappresenta l'indirizzo del magazine<br>
 >- **title**: rappresenta il titolo del magazine<br>
@@ -38,7 +38,7 @@ Di seguito esaminiamo le strutture dati utilizzate nel contratto.
 
 **Customer**
 
-![alt text](./readmeimg/image-1.png)
+![image](https://github.com/OtreborHub/science-magazine-store/assets/138629331/bbb4e679-736e-4e6d-bd98-17f5d15128b4)
 
 >- **customer_address**: rappresenta l'indirizzo del cliente<br>
 >- **owned_magazines**: rappresenta l'array di magazines posseduti dal cliente<br>
@@ -105,11 +105,3 @@ Viene usato il React Context per gestire i dati relativi alla utenza web3 (indir
 *Esecuzione*
 
 > **npm start**
-
-*Esecuzione db locale*
-
-> **npm run server**
-
-Esempio di DB Locale
-
-![alt text](./readmeimg/image-3.png)
