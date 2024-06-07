@@ -29,8 +29,8 @@ export default function AdminView({ notReleasedMagazines: notReleasedNumbers, re
 
   function newMagazine() {
     Swal.fire({
-      title: "Nuovo numero",
-      text: "Scegli un titolo per il nuovo numero",
+      title: "Nuovo magazine",
+      text: "Scegli un titolo per il nuovo magazine",
       input: "text",
       confirmButtonColor: "#3085d6",
       showCloseButton: true,
@@ -38,8 +38,18 @@ export default function AdminView({ notReleasedMagazines: notReleasedNumbers, re
     }).then(async (result) => {
       if (result.value !== "" && result.isConfirmed) {
         setIsLoading(true);
-        await addMagazine(result.value);
+        const success = await addMagazine(result.value);
         setIsLoading(false);
+        if(success){
+          Swal.fire({
+            title: "Nuovo magazine",
+            text: "La richiesta di inserimento è avvenuta con successo!\n\n per favore attendi l'elaborazione del nuovo magazine.",
+            icon: "success",
+            confirmButtonColor: "#3085d6",
+          });
+        } else {
+          console.log("Magazine non inserito");
+        }
       }
     })
   }

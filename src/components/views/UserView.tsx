@@ -97,39 +97,53 @@ export default function UserView({ lastMagazine: lastNumber, releasedMagazines: 
 		
 		setIsLoading(true);
 			if (checked) {
-				readCustomerMagazine().then((magazines) => {
-					if (dateFilter) {
-						const max_bound = getFirstDayOfMonth(year, month);
-						const min_bound = getLastDayOfMonth(year, month - 1);
-						magazines = magazines.filter(magazine =>
-							magazine.release_date < max_bound &&
-							magazine.release_date > min_bound
-						);
-					}
-					setSearchMine(true);
-					setSearchedMagazined(magazines);
-					setIsLoading(false);
-				});
+				searchCustomerMagazine(dateFilter, month, year)
 			} else if (dateFilter) {
-				const max_bound = getFirstDayOfMonth(year, month);
-				const min_bound = getLastDayOfMonth(year, month - 1);
-				readAllMagazines().then((magazines) => {
-					if (magazines.length > 0) {
-						magazines = magazines.filter(magazine =>
-							magazine.release_date < max_bound &&
-							magazine.release_date > min_bound
-						);
-						setSearchMine(false);
-						setSearchedMagazined(magazines);
-						setIsLoading(false);
-					}
-				});
+				searchMagazineByDate(month, year);
 			} else {
 				setIsLoading(false);
 				swalError(ErrorMessage.IO, Action.SRC_USER_MAG);
 			}
 
 		event.preventDefault();
+	}
+
+	async function searchCustomerMagazine(dateFilter: boolean, month: number, year: number) {
+		let magazines = await readCustomerMagazine();
+		setIsLoading(false);
+		if(magazines.length > 0){
+			if (dateFilter) {
+				const max_bound = getFirstDayOfMonth(year, month);
+				const min_bound = getLastDayOfMonth(year, month - 1);
+				magazines = magazines.filter(magazine =>
+					magazine.release_date < max_bound &&
+					magazine.release_date > min_bound
+				);
+			}
+			setSearchMine(true);
+			setSearchedMagazined(magazines);
+		} else {
+			console.log("Nessun magazine trovato");
+		}
+
+		
+	}
+
+	async function searchMagazineByDate(month: number, year: number){
+		const max_bound = getFirstDayOfMonth(year, month);
+		const min_bound = getLastDayOfMonth(year, month - 1);
+		let magazines = await readAllMagazines();
+		setIsLoading(false);
+		if (magazines.length > 0) {
+			magazines = magazines.filter(magazine =>
+				magazine.release_date < max_bound &&
+				magazine.release_date > min_bound
+			);
+			setSearchMine(false);
+			setSearchedMagazined(magazines);
+		} else {
+			console.log("Nessun magazine trovato");
+		}
 	}
 
 	const handleClear = () => {

@@ -32,11 +32,14 @@ export enum ErrorMessage {
 }
 
 export function swalError(errorMessage: ErrorMessage, action?: Action, error?: any){
-    let shortMessage;
-    //transazione rifiutata dall'utente (es: Annulla da metamask)
+    let shortMessage = "";
+    let title = "";
+    let text = "";
+
+    //transazione rifiutata dall'utente (Metamask - The request is rejected by the user)
     if(error && error.info && error.info.error && error.info.error.code === 4001){
         return;
-    }
+    } else
     if(error && error.shortMessage && error.shortMessage.includes("execution reverted")){
         shortMessage = error.shortMessage.split(":")[1].trim().replace("\"", "").slice(0, -1);
     } else
@@ -44,8 +47,6 @@ export function swalError(errorMessage: ErrorMessage, action?: Action, error?: a
         shortMessage = String(error.code).toLowerCase().replace("_", " ");
         shortMessage = shortMessage.charAt(0).toUpperCase() + shortMessage.slice(1);
     }
-    let title = "";
-    let text = "";
 
     switch(shortMessage ? shortMessage : errorMessage){
         case ErrorMessage.RD:
@@ -128,7 +129,7 @@ export function swalError(errorMessage: ErrorMessage, action?: Action, error?: a
                 text = "Ricontrolla l'indirizzo inserito e assicurati che sia un indirizzo valido";
             } else if (action && action === Action.RELEASE_MAG) {
                 title = "Parametri di input non validi";
-                text = "Ricontrolla che le risorse IPFS siano valide e di aver inserito il sommario.";
+                text = "Ricontrolla che le risorse IPFS siano valide e di aver inserito un testo per il sommario.";
             } else if (action && action === Action.ADD_ADMIN){
                 title = "Indirizzo non valido";
                 text = "Ricontrolla l'indirizzo inserito e assicurati che sia un indirizzo valido";

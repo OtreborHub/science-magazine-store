@@ -33,8 +33,8 @@ function addContractListeners(signer: string) {
           let ipfsURL = response.val().content;
 
           Swal.fire({
-            title: "Ordine ricevuto!",
-            text: "Puoi visitare il numero che hai appena acquistato qui: \n\n" + ipfsURL + "\n\nPremi OK per ricaricare la pagina",
+            title: "Acquisto effettuato!",
+            text: "Puoi visitare il magazine che hai appena acquistato qui: \n\n" + ipfsURL + " \n\nPremi OK per ricaricare la pagina",
             icon: "success",
             confirmButtonColor: "#3085d6"
           }).then((result) => {
@@ -70,7 +70,7 @@ function addContractListeners(signer: string) {
     //Firebase data
     createMagazine(magazine_address).then(response => {
         Swal.fire({
-          title: "Nuovo numero!",
+          title: "Nuovo magazine!",
           text: "Indirizzo del magazine creato:\n\n" + magazine_address + "\n\nPremi OK per ricaricare la pagina",
           icon: "success",
           confirmButtonColor: "#3085d6"
@@ -298,11 +298,13 @@ export async function addAdministrator(address: string) {
       const signer = await provider.getSigner();
       const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
   
-      return await signerContract.addAdmin(address);
-
+      await signerContract.addAdmin(address);
+      return true;
+      
     } catch (error: any) {
       console.log("addAdministrator action: " + ErrorMessage.TR);
       swalError(ErrorMessage.TR, Action.ADD_ADMIN, error);
+      return false;
     }
   }
 }
@@ -315,11 +317,14 @@ export async function addMagazine(title: string) {
       const signer = await provider.getSigner();
       const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
 
-      return await signerContract.addMagazine(title);
+      await signerContract.addMagazine(title);
+      return true;
 
     } catch (error: any) {
       console.log("addMagazine action: " + ErrorMessage.TR);
-      swalError(ErrorMessage.TR, Action.ADD_MAG, error)
+      swalError(ErrorMessage.TR, Action.ADD_MAG, error);
+      return false;
+
     }
   }
 }
@@ -349,11 +354,13 @@ export async function buyMagazine(address: string, value: number) {
       const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
   
       let options = { value: value }
-      return await signerContract.buyMagazine(address, options)
+      await signerContract.buyMagazine(address, options)
+      return true;
 
     } catch (error: any) {
       console.log("buyMagazine action: " + ErrorMessage.TR);
       swalError(ErrorMessage.TR, Action.BUY_MAG, error);
+      return false;
     }
   }
 }
@@ -386,6 +393,7 @@ export async function revokeSubscription() {
   
       await signerContract.revokeSubscribe();
       return true;
+
     } catch (error) {
       console.log("revokeSubscription action: " + ErrorMessage.TR);
       swalError(ErrorMessage.TR, Action.REVOKE_SUB, error);
@@ -404,6 +412,7 @@ export async function withdraw(amount: string) {
       const ethAmount = ethers.parseEther(amount)
       await signerContract.withdraw(ethAmount);
       return true;
+
     } catch (error) {
       console.log("withdraw action: " + ErrorMessage.TR);
       swalError(ErrorMessage.TR, Action.WITHDRAW, error);
@@ -421,6 +430,7 @@ export async function splitProfit() {
 
       await signerContract.splitProfit();
       return true;
+
     } catch (error) {
       console.log("splitProfit action: " + ErrorMessage.TR);
       swalError(ErrorMessage.TR, Action.SPLIT_PROFIT, error);

@@ -57,16 +57,26 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
         content: (document.getElementById('content') as HTMLInputElement).value,
         summary: (document.getElementById('summary') as HTMLTextAreaElement).value,
       }),
-    }).then((result) => {
+    }).then(async (result) => {
       if(result.isConfirmed){
         let coverURL = result.value.cover.trim();
         let contentURL = result.value.content.trim();
         let summary = result.value.summary.trim();
         if(inputValidation(coverURL, contentURL, summary)){
           setIsLoading(true);
-          releaseMagazine(address).then((result) => {
-            saveReleasedMagazine( coverURL, contentURL, summary );
-          });
+          const success = await releaseMagazine(address);
+          if(success){
+            await saveReleasedMagazine( coverURL, contentURL, summary );
+            Swal.fire({
+              title: "Nuovo magazine",
+              text: "La richiesta di rilascio è avvenuta con successo!\n\n per favore attendi l'elaborazione del nuovo magazine.",
+              icon: "success",
+              confirmButtonColor: "#3085d6",
+            });
+            console.log("Magazine " + address + " rilasciato con successo");
+          }else{
+            console.log("Magazine non rilasciato");
+          }
         } else {
           swalError(ErrorMessage.IO, Action.RELEASE_MAG)
         }

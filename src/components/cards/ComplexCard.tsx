@@ -59,8 +59,20 @@ export default function ComplexCard({magazine, singlePrice, owned}: ComplexCardP
     }).then(async (result) => {
       if (result.isConfirmed) {
         setIsLoading(true);
-        await buyMagazine(magazine.address, singlePrice);
-        setIsLoading(false);
+        const success =  await buyMagazine(magazine.address, singlePrice);
+        setIsLoading(false);  
+        if(success){
+          Swal.fire({
+            title: "Ordine ricevuto!",
+            text: "Grazie per l'acquisto, Il tuo fattorino digitale sarà da te tra qualche secondo.",
+            icon: "success",
+            confirmButtonColor: "#3085d6"
+          })
+          console.log("Magazine acquistato con successo");
+          }else{
+            console.log("Magazine non acquistato");
+          }
+        
       }
     })
   }
