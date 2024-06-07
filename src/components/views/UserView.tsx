@@ -222,7 +222,6 @@ export default function UserView({ lastMagazine: lastNumber, releasedMagazines: 
 				</Grid>
 			</div>
 			
-			<div id="footer"></div>
 			<Loader loading={isLoading} />
 		</>
 	);
