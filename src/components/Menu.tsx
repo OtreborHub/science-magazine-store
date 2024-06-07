@@ -91,14 +91,18 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
       }).then(async (result) => {
         if (result.isConfirmed && result.value > 0 && result.value < appContext.contractBalance) {
           setIsLoading(true);
-          withdraw(result.value).then((res)=> {
+          withdraw(result.value).then((success)=> {
             setIsLoading(false);
-            Swal.fire({
-              title: "Prelievo avvenuto con successo!", 
-              text: "", 
-              icon: "success",
-              confirmButtonColor: "#3085d6"
-            });
+            if(success){
+              Swal.fire({
+                title: "Prelievo avvenuto con successo!", 
+                text: "", 
+                icon: "success",
+                confirmButtonColor: "#3085d6"
+              });
+            } else {
+              console.log("Errore durante l'azione di prelievo");
+            }
           });
         }
       })
@@ -110,7 +114,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
     let balance = parseFloat(ethers.formatEther(appContext.contractBalance));
     if (balance === 0 || balance < minWithdraw) {
       swalError(ErrorMessage.IF, Action.SPLIT_PROFIT);
-    } 
+    }
     else {
       Swal.fire({
         title: "Dividi Profitto",
@@ -121,14 +125,18 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
       }).then(async (result) => {
         if (result.isConfirmed) {
           setIsLoading(true);
-          splitProfit().then((res)=> {
+          splitProfit().then((success) => {
             setIsLoading(false);
-            Swal.fire({
-              title: "Split profit avvenuto con successo!", 
-              text: "", 
-              icon: "success",
-              confirmButtonColor: "#3085d6"
-            });
+            if(success) {
+              Swal.fire({
+                title: "Split profit avvenuto con successo!",
+                text: "",
+                icon: "success",
+                confirmButtonColor: "#3085d6"
+              });
+            } else {
+              console.log("Errore durante l'azione di splitProfit");
+            }
           });
         }
       })
@@ -148,14 +156,18 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
       if (result.isConfirmed) {
         if(addressValidation(result.value)){
           setIsLoading(true);
-          addAdministrator(result.value).then((res)=> {
+          addAdministrator(result.value).then((success)=> {
             setIsLoading(false);
-            Swal.fire({
-              title: "Admin aggiunto con successo!", 
-              text: "", 
-              icon: "success",
-              confirmButtonColor: "#3085d6"
-            });
+            if(success){
+              Swal.fire({
+                title: "Admin aggiunto con successo!", 
+                text: "", 
+                icon: "success",
+                confirmButtonColor: "#3085d6"
+              });
+            } else {
+              console.log("Errore durante l'azione di aggiunta admin");
+            }
           });
         } else {
           swalError(ErrorMessage.IO, Action.ADD_ADMIN);
@@ -176,18 +188,22 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
       }).then(async (result) => {
         if (result.isConfirmed) {
           setIsLoading(true);
-          revokeSubscription().then((res)=> {
+          revokeSubscription().then((success)=> {
             setIsLoading(false);
-            Swal.fire({
-              title: "A presto!",
-              text: "Premi OK per ricaricare la pagina",
-              icon: "success",
-              confirmButtonColor: "#3085d6"
-            }).then((result) => {
-              if(result.isConfirmed){
-                window.location.reload();
-              }
-            });
+            if(success){
+              Swal.fire({
+                title: "A presto!",
+                text: "Premi OK per ricaricare la pagina",
+                icon: "success",
+                confirmButtonColor: "#3085d6"
+              }).then((result) => {
+                if(result.isConfirmed){
+                  window.location.reload();
+                }
+              });
+            } else {
+              console.log("Errore durante l'azione di revoca abbonamento");
+            }
           });
         }
       })
@@ -258,6 +274,8 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
                       confirmButtonColor: "#3085d6",
                       showCloseButton: true
                     });
+                  } else {
+                    console.log("Errore durante l'operazione di donazione");
                   }
                 });
             } else {

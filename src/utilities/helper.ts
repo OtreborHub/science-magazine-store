@@ -11,8 +11,7 @@ export const formatNumberAddress = (address: string) => {
 }
 
 export const formatBalance = (balance: number) => {
-    let formatted = ethers.formatUnits(balance, 18);
-    return formatted;
+    return ethers.formatUnits(balance, 18);
 }
 
 export function getLastDayOfMonth(year: number, month: number): number {

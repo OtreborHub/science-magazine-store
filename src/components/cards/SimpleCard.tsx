@@ -59,9 +59,9 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
       }),
     }).then((result) => {
       if(result.isConfirmed){
-        let coverURL = result.value.cover;
-        let contentURL = result.value.content;
-        let summary = result.value.summary;
+        let coverURL = result.value.cover.trim();
+        let contentURL = result.value.content.trim();
+        let summary = result.value.summary.trim();
         if(inputValidation(coverURL, contentURL, summary)){
           setIsLoading(true);
           releaseMagazine(address).then((result) => {

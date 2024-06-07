@@ -45,7 +45,7 @@ export default function AdminView({ notReleasedMagazines: notReleasedNumbers, re
   }
 
   const handleSearch = (event: any) => {
-    let magazine_address = event.target.address.value;
+    let magazine_address = event.target.address.value.trim();
     if(addressValidation(magazine_address)){
       setIsLoading(true);
       readMagazineByAddress(magazine_address).then((magazines) => {

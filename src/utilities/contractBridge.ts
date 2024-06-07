@@ -135,7 +135,7 @@ export async function readAllMagazines(): Promise<Magazine[]> {
     return magazines;
 
   } catch (error: any) {
-    console.log("error occurred during reading data process from contract");
+    console.log("readAllMagazines action: " + ErrorMessage.RD);
     swalError(ErrorMessage.RD, Action.SRC_ALL_MAG, error);
     return [];
   } 
@@ -172,6 +172,7 @@ export async function readCustomerMagazine(): Promise<Magazine[]> {
     
     return magazines;
   } catch (error: any) {
+    console.log("readCustomerMagazine action: " + ErrorMessage.RD);
     swalError(ErrorMessage.RD, Action.SRC_CUSTOM_MAG, error);
     return [];
   }
@@ -197,6 +198,7 @@ export async function readMagazineByAddress(magazine_address: string): Promise<M
     
     return magazines;
   } catch (error: any) {
+    console.log("readMagazineByAddress action: " + ErrorMessage.RD);
     swalError(ErrorMessage.RD, Action.SRC_ADDR_MAG, error);
     return [];
   }
@@ -207,6 +209,7 @@ export async function readContractBalance() {
     try {
       return await contractInstance.getBalance();
     } catch (error: any) {
+      console.log("readContractBalance action: " + ErrorMessage.RD);
       swalError(ErrorMessage.RD, Action.RD_DATA, error);
     }
   }
@@ -217,6 +220,7 @@ export async function readMagazineCount() {
     try {
       return await contractInstance.countMagazines();
     } catch (error: any) {
+      console.log("readMagazineCount action: " + ErrorMessage.RD);
       swalError(ErrorMessage.RD, Action.RD_DATA, error);
     }
   }
@@ -232,6 +236,7 @@ export async function readCustomer() {
       return await signerContract.isCustomer();
     
     } catch (error: any) {
+      console.log("readCustomer action: " + ErrorMessage.RD);
       swalError(ErrorMessage.RD, Action.RD_DATA, error);
     }
   }
@@ -247,6 +252,7 @@ export async function readAdministrator() {
       return await signerContract.isAdministrator();
     
     } catch (error: any) {
+      console.log("readAdministrator action: " + ErrorMessage.RD);
       swalError(ErrorMessage.RD, Action.RD_DATA, error);
     }
   }
@@ -257,6 +263,7 @@ export async function readOwner() {
     try{
       return await contractInstance.owner();
     } catch (error: any) {
+      console.log("readOwner action: " + ErrorMessage.RD);
       swalError(ErrorMessage.RD, Action.RD_DATA, error);
     }
   }
@@ -267,6 +274,7 @@ export async function readSinglePrice() {
     try{
       return await contractInstance.singlePrice();
     } catch (error: any) {
+      console.log("readSinglePrice action: " + ErrorMessage.RD);
       swalError(ErrorMessage.RD, Action.RD_DATA, error);
     }
   }
@@ -275,8 +283,9 @@ export async function readSinglePrice() {
 export async function readAnnualPrice() {
   if (contractInstance) {
     try{
-      return await contractInstance.annualPrice();
+      return await contractInstance.singlePrice();
     } catch (error: any) {
+      console.log("readAnnualPrice action: " + ErrorMessage.RD);
       swalError(ErrorMessage.RD, Action.RD_DATA, error);
     }
   }
@@ -292,7 +301,8 @@ export async function addAdministrator(address: string) {
       return await signerContract.addAdmin(address);
 
     } catch (error: any) {
-      swalError(ErrorMessage.TR, Action.ADD_ADMIN, error)
+      console.log("addAdministrator action: " + ErrorMessage.TR);
+      swalError(ErrorMessage.TR, Action.ADD_ADMIN, error);
     }
   }
 }
@@ -373,11 +383,12 @@ export async function revokeSubscription() {
       const signer = await provider.getSigner();
       const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
   
-      return await signerContract.revokeSubscribe();
-
+      await signerContract.revokeSubscribe();
+      return true;
     } catch (error) {
       console.log("revokeSubscription action: " + ErrorMessage.TR);
       swalError(ErrorMessage.TR, Action.REVOKE_SUB, error);
+      return false;
     }
   }
 }
@@ -385,10 +396,17 @@ export async function revokeSubscription() {
 export async function withdraw(amount: string) {
   if (contractInstance) {
     try {
-      return await contractInstance.withdraw(amount);
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
+
+      const ethAmount = ethers.parseEther(amount)
+      await signerContract.withdraw(ethAmount);
+      return true;
     } catch (error) {
-      console.log("witdraw action: " + ErrorMessage.TR);
+      console.log("withdraw action: " + ErrorMessage.TR);
       swalError(ErrorMessage.TR, Action.WITHDRAW, error);
+      return false;
     }
   }
 }
@@ -396,10 +414,16 @@ export async function withdraw(amount: string) {
 export async function splitProfit() {
   if (contractInstance) {
     try {
-      return await contractInstance.splitProfit();
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
+
+      await signerContract.splitProfit();
+      return true;
     } catch (error) {
       console.log("splitProfit action: " + ErrorMessage.TR);
       swalError(ErrorMessage.TR, Action.SPLIT_PROFIT, error);
+      return false;
     }
   }
 }

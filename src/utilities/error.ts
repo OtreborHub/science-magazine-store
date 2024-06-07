@@ -34,7 +34,7 @@ export enum ErrorMessage {
 export function swalError(errorMessage: ErrorMessage, action?: Action, error?: any){
     let shortMessage;
     //transazione rifiutata dall'utente (es: Annulla da metamask)
-    if(error && error.info.error.code === 4001){
+    if(error && error.info && error.info.error && error.info.error.code === 4001){
         return;
     }
     if(error && error.shortMessage && error.shortMessage.includes("execution reverted")){
