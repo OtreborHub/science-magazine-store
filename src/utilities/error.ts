@@ -115,7 +115,7 @@ export function swalError(errorMessage: ErrorMessage, action?: Action, error?: a
 
         case ErrorMessage.MAO: 
             title = "Magazine già acquistato";
-            text = "Puoi consultare i tuoi magazine dal menu ruolo";
+            text = "Puoi consultare i tuoi magazine dal Menu Ruolo in alto a sinistra";
             break;
 
         case ErrorMessage.IO:

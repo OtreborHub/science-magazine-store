@@ -283,7 +283,7 @@ export async function readSinglePrice() {
 export async function readAnnualPrice() {
   if (contractInstance) {
     try{
-      return await contractInstance.singlePrice();
+      return await contractInstance.annualPrice();
     } catch (error: any) {
       console.log("readAnnualPrice action: " + ErrorMessage.RD);
       swalError(ErrorMessage.RD, Action.RD_DATA, error);
@@ -366,7 +366,8 @@ export async function annualSubscription(value: number) {
       const signer = await provider.getSigner();
       const signerContract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
   
-      let options = { value: value }
+      let options = { value: value };
+
       return await signerContract.annualSubscribe(options);
 
     } catch (error) {
