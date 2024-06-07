@@ -94,14 +94,30 @@ L'applicativo fornisce un interfaccia grafica al ciclo di vita di ogni magazine.
 
 Viene usato il React Context per gestire i dati relativi alla utenza web3 (indirizzo e bilancio) che effettua il login per mezzo di un provider (Metamask è il provider di default), il suo ruolo nella dapp e il bilancio del contratto. 
 
+Il progetto contiene le cartelle:
+- <i>smart contracts</i> contenente entrambi gli smart contract creati, testati e deployati per mezzo dell'IDE Remix.
+- <i> src </i> contenente il progetto web. In src troviamo i file di avvio del progetto e il Context per orchestrare la sessione dell'utente. Inoltre qui sono presenti i componenti React (con i relativi stili) e una cartella di utilities contente file trasversali a tutto il progetto (vedi contractBridge.ts)
 
+I componenti sono suddivisi per funzionalità: nella cartella components infatti troviamo prima i componenti sempre presenti a schermo e diverse sottocartelle di componenti che vengono visualizzati sulla base del wallet collegato (e del suo ruolo nell'ecosistema Technology Innovation):
+  * <i> cards </i> con gli elementi frontend che rappresentano l'esposizione dei singoli magazine, in versione più elaborata (ComplexCard) per il pubblico e in versione più minimale (SimpleCard) per gli admin. 
+  * <i> forms </i> con gli elementi frontend che richiedono azioni di input e di submit da parte dell'utente. 
+  In particolare i form di ricerca e quello di acquisto nella UserView
+  * <i> view </i> con gli elementi frontend visualizzati per gli amministratori (AdminView), per il pubblico (UserView), e in caso di errori relativi al wallet durante la connessione (ErrorView).
 
 <h2><b>Eseguire il progetto in locale</b></h2>
 
 *Installazione*
 
+Partendo dalla root del progetto science-magazine-store aprire il terminale ed eseguire
+
 > **npm install**
 
+Verranno scaricate tutte le librerie necessarie alla compilazione del progetto.
+Rinominare il file ".env empty" nella root del progetto con il nome ".env" ed inserire la propria Infura Api Key sotto la voce
+REACT_APP_INFURA_API_KEY=
+
 *Esecuzione*
+
+Dalla root del progetto eseguire
 
 > **npm start**
