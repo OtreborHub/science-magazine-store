@@ -48,7 +48,7 @@ export default function AdminView({ notReleasedMagazines: notReleasedNumbers, re
             confirmButtonColor: "#3085d6",
           });
         } else {
-          console.log("Magazine non inserito");
+          console.log("Magazine not added");
         }
       }
     })
@@ -62,7 +62,13 @@ export default function AdminView({ notReleasedMagazines: notReleasedNumbers, re
         if(magazines.length > 0){
           setSearchedMagazine(magazines[0]);
         } else {
-          Swal.fire("Nessun magazine trovato", "info");
+          Swal.fire({
+            icon: "info",
+            title: "Nessun magazine trovato",
+            text: "Riprova cambiando i parametri di ricerca!",
+            confirmButtonColor: "#3085d6",
+            showCloseButton: true
+          });
         }
         setIsLoading(false);
       });
@@ -80,7 +86,7 @@ export default function AdminView({ notReleasedMagazines: notReleasedNumbers, re
 
     <>
       {/* NUMERI DA RILASCIARE */}
-      <Typography variant="h4" textAlign={"left"} marginLeft={"2rem"} fontFamily={"sans-serif"} sx={{ cursor: 'default' }}> Numeri da rilasciare</Typography>
+      <Typography variant="h4" textAlign={"left"} marginLeft={"2rem"} fontFamily={"sans-serif"} sx={{ cursor: "default", color: "whitesmoke" }}> Numeri da rilasciare</Typography>
       <Box className="card-div" paddingBottom={"2rem"}>
         <Grid container spacing={isMobile ? 4 : 2} sx={{ margin: "1rem" }}>
           {notReleasedNumbers.map(el =>
@@ -110,7 +116,7 @@ export default function AdminView({ notReleasedMagazines: notReleasedNumbers, re
       </Box>
 
       {/* NUMERI RILASCIATI */}
-      <Typography variant="h4" textAlign={"left"} marginLeft={"2rem"} fontFamily={"sans-serif"} sx={{ cursor: 'default' }}> Numeri rilasciati</Typography>
+      <Typography variant="h4" textAlign={"left"} marginLeft={"2rem"} fontFamily={"sans-serif"} sx={{ cursor: "default"}} color={"whitesmoke"}> Numeri rilasciati</Typography>
       <Box className="card-div" paddingBottom={"2rem"}>
         <Grid container spacing={isMobile ? 4 : 2} sx={{ margin: "1rem" }}>
           {releasedNumbers.map(el =>
@@ -129,7 +135,7 @@ export default function AdminView({ notReleasedMagazines: notReleasedNumbers, re
       </Box>
 
       {/* RICERCA */}
-      <Typography className='anta-regular' variant="h3" textAlign={"center"} sx={{ cursor: 'default' }}> Ricerca per indirizzo </Typography>
+      <Typography className='anta-regular' variant="h3" textAlign={"center"} sx={{ cursor: "default"}} color={"whitesmoke"}> Ricerca per indirizzo </Typography>
       <SearchForm handleSearch={handleSearch} handleClear={handleClear}/>
       <div id="found-card" className="found-card-div">
           {searchedMagazine !== emptyMagazine &&

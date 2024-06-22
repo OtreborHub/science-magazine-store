@@ -105,7 +105,7 @@ export default function App() {
 
       appContext.updateRole(getRole(isOwner, isAdmin, isCustomer));
     } catch {
-      console.log("Errore durante l'inizializzazione del contratto");
+      console.log("Error during contract init");
     }
 
   }

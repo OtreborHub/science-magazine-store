@@ -51,7 +51,6 @@ export default function UserView({ lastMagazine: lastNumber, releasedMagazines: 
 			setAnnualPrice(Number(annual));
 		} catch {
 			console.log("Errore durante il recupero dei prezzi");
-			//swalError(ErrorMessage.RD, Action.RD_DATA);
 		}
 	}
 
@@ -83,7 +82,8 @@ export default function UserView({ lastMagazine: lastNumber, releasedMagazines: 
 			setSearchedMagazined(magazines);
 			//scrollDown();
 		} else {
-			Swal.fire("Nessun magazine trovato", "info");
+			console.log("force search event");
+			Swal.fire("Nessun magazine trovato", "Si prega di riprovare più tardi", "info");
 		}
 		setIsLoading(false);
 	}
@@ -123,7 +123,7 @@ export default function UserView({ lastMagazine: lastNumber, releasedMagazines: 
 			setSearchMine(true);
 			setSearchedMagazined(magazines);
 		} else {
-			console.log("Nessun magazine trovato");
+			console.log("No magazine found");
 		}
 
 		
@@ -139,10 +139,27 @@ export default function UserView({ lastMagazine: lastNumber, releasedMagazines: 
 				magazine.release_date < max_bound &&
 				magazine.release_date > min_bound
 			);
+
+			if(magazines.length == 0){
+				Swal.fire({
+					icon: "info",
+					title: "Nessun magazine trovato",
+					text: "Riprova cambiando i parametri di ricerca!",
+					confirmButtonColor: "#3085d6",
+					showCloseButton: true
+				});
+			}
+
 			setSearchMine(false);
 			setSearchedMagazined(magazines);
 		} else {
-			console.log("Nessun magazine trovato");
+			Swal.fire({
+				icon: "info",
+				title: "Nessun magazine trovato",
+				text: "Riprova cambiando i parametri di ricerca!",
+				confirmButtonColor: "#3085d6",
+				showCloseButton: true
+			});
 		}
 	}
 
@@ -170,7 +187,6 @@ export default function UserView({ lastMagazine: lastNumber, releasedMagazines: 
 
 					</Grid>
 					<Grid item
-						// border={1}
 						xs={12}
 						md={6}
 						xl={6}
@@ -180,7 +196,7 @@ export default function UserView({ lastMagazine: lastNumber, releasedMagazines: 
 						justifyContent={"center"}>
 						<Box
 							sx={{ marginLeft: "8%", marginRight: "8%", marginBottom: "2rem", textAlign: "center" }}>
-							<Typography variant="h5" fontFamily={"unset"}>
+							<Typography variant="h5" fontFamily={"unset"} color={"whitesmoke"}>
 								 {"Il primo Blockchain Magazine a tema innovazione scentifica e futuro della tecnologia"}
 							</Typography>
 						</Box>
@@ -199,7 +215,7 @@ export default function UserView({ lastMagazine: lastNumber, releasedMagazines: 
 			</Box>
 
 			{/* Numeri precedenti */}
-			<Typography className='anta-regular' variant="h3" textAlign={"center"} sx={{ cursor: 'default' }}> Dai un'occhiata ai numeri precedenti...</Typography>
+			<Typography className='anta-regular' variant="h3" textAlign={"center"} sx={{ cursor: "default"}} color={"whitesmoke"}> Dai un'occhiata ai numeri precedenti...</Typography>
 			<Box className="card-div">
 				<Grid container spacing={isMobile ? 4 : 2} sx={{ margin: "1rem", marginRight: "2rem" }}>
 					{releasedNumbers.map(el => (el.address !== lastNumber.address) &&
@@ -220,8 +236,20 @@ export default function UserView({ lastMagazine: lastNumber, releasedMagazines: 
 			</Box>
 
 			{/* Ricerca */}
-			<Typography id="search-ref" className='anta-regular' variant="h3" textAlign={"center"} sx={{ cursor: 'default' }}> ...O cerca il tuo preferito </Typography>
-			<SearchForm handleSearch={handleSearch} handleClear={handleClear} />
+			<Typography id="search-ref" className='anta-regular' variant="h3" textAlign={"center"} sx={{ cursor: "default" }} color={"whitesmoke"}> ...O cerca il tuo preferito </Typography>
+			<Box sx={{
+          backgroundColor: "whitesmoke", 
+          borderRadius: "0.5rem", 
+          border: "0.2rem solid black", 
+          width: "75%", 
+          margin: "auto", 
+          marginTop: "2rem",
+          padding: "0rem"
+        }}>
+				<SearchForm handleSearch={handleSearch} handleClear={handleClear} />
+				<Typography variant="body1" align="center">Puoi spuntare <strong>Solo Acquistati</strong>, solo dopo aver acquistato almeno una delle nostre copie firmate Technology Innovation.</Typography>
+				<Typography variant="body1" align="center" marginBottom={"2rem"}>Usa i due selettori di Mese e Anno per selezionare il periodo di rilascio del magazine che ti interessa, nel caso ti fossi perso qualche uscita!</Typography>
+			</Box>
 			<div className="found-card-div">
 				<Grid container spacing={isMobile ? 4 : 2} sx={{ margin: "1rem", marginRight: "2rem" }}>
 					{searchedMagazines.map(el =>

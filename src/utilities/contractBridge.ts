@@ -18,7 +18,7 @@ export default function getContractInstance(provider: Provider, signer: string) 
       contractInstance = new Contract(CONTRACT_ADDRESS, contractABI, provider);
       addContractListeners(signer);
     } catch {
-      console.log("Errore durante la creazione dell'istanza del contratto: verificare l'indirizzo del contratto, l'abi e il provider utilizzato");
+      console.log("Error during contract instance: be sure of the address, abi or provider are used");
     }
   }
 }
@@ -71,7 +71,7 @@ function addContractListeners(signer: string) {
     createMagazine(magazine_address).then(response => {
         Swal.fire({
           title: "Nuovo magazine!",
-          text: "Indirizzo del magazine creato:\n\n" + magazine_address + "\n\nPremi OK per ricaricare la pagina",
+          text: "Indirizzo del magazine creato:\n\n " + magazine_address + " \n\nPremi OK per ricaricare la pagina",
           icon: "success",
           confirmButtonColor: "#3085d6"
         }).then((result) => {
@@ -89,7 +89,7 @@ function addContractListeners(signer: string) {
     //Firebase update in SimpleCard.tsx
     Swal.fire({
       title: "Nuovo numero rilasciato!",
-      text: "Indirizzo del magazine rilasciato:\n\n" + magazine_address + "\n\nPremi OK per ricaricare la pagina",
+      text: "Indirizzo del magazine rilasciato:\n\n " + magazine_address + " \n\nPremi OK per ricaricare la pagina",
       icon: "success",
       confirmButtonColor: "#3085d6"
     }).then((result) => {

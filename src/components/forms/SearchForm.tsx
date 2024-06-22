@@ -1,6 +1,6 @@
 import { Search } from "@mui/icons-material";
 import ClearIcon from '@mui/icons-material/Clear';
-import { Button, Checkbox, FormControl, FormControlLabel, Grid, IconButton, Input, InputLabel, MenuItem, Select } from '@mui/material';
+import { Box, Button, Checkbox, FormControl, FormControlLabel, Grid, IconButton, Input, InputLabel, MenuItem, Select } from '@mui/material';
 import InputBase from '@mui/material/InputBase';
 import { styled } from '@mui/material/styles';
 import { ChangeEvent, useEffect, useState } from "react";
@@ -61,29 +61,29 @@ export default function SearchForm({ handleSearch, handleClear } : SearchFormPro
     }));
 
     return (
-        <form onSubmit={search}>
-          <Grid container 
+      <form onSubmit={search}>
+        <Grid container
           paddingTop={"2rem"}
-          paddingBottom={"2rem"} 
-          display={"flex"} 
-          color={"white"}
-          flexDirection={"row"} 
+          paddingBottom={"2rem"}
+          display={"flex"}
+          flexDirection={"row"}
           alignItems={"center"}
-          spacing={2} 
+          spacing={2}
           justifyContent={"center"}>
-            { isUser && 
+          {isUser &&
             <>
-            <Grid item>
+              <Grid item>
                 <FormControlLabel
-                    control={<Checkbox checked={checked} sx={{color:"white"}} onChange={handleCheck} />}
-                    label="Solo acquistati"
-                    disabled={isVisitor}/>
-            </Grid>
+                  control={<Checkbox checked={checked} onChange={handleCheck} />}
+                  color="black"
+                  label="Solo acquistati"
+                  disabled={isVisitor} />
+              </Grid>
 
-            <Grid item>
-              <FormControl>
-                <InputLabel id="month-select"> Mese </InputLabel>
-                <Select
+              <Grid item>
+                <FormControl>
+                  <InputLabel id="month-select"> Mese </InputLabel>
+                  <Select
                     sx={{ m: 1.5, minWidth: 220, border: "2px solid" }}
                     id="month-select"
                     value={month}
@@ -103,57 +103,57 @@ export default function SearchForm({ handleSearch, handleClear } : SearchFormPro
                     <MenuItem value={10}>Ottobre</MenuItem>
                     <MenuItem value={11}>Novembre</MenuItem>
                     <MenuItem value={12}>Dicembre</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item>
-              <FormControl>
-                <InputLabel id="month-select"> Anno </InputLabel>
-              <Select
-                  sx={{ m: 1.5, minWidth: 220, border: "2px solid"  }}
-                  value={year}
-                  variant='standard'
-                  color='primary'
-                  input={<BootstrapInput />}
-                  onChange={(e) => setYear(Number(e.target.value))}>
-                  <MenuItem value={0}><em>--Vuoto--</em></MenuItem>
-                  <MenuItem value={2023} color='white'>2023</MenuItem>
-                  <MenuItem value={2024} color='white'>2024</MenuItem>
-              </Select>
-              </FormControl>
-            </Grid>
-            </>
-            }
-
-            { !isUser && 
+                  </Select>
+                </FormControl>
+              </Grid>
               <Grid item>
-              <FormControlLabel
-                  control={
-                    <Input 
-                      startAdornment={"Address: "}
-                      id="address"
-                      value={addressValue}
-                      sx={{color:"white", padding:"5px", minWidth: "350px"}}
-                      placeholder=" 0x00.."
-                      onChange={handleText}/>
-                  }
-                  label=""/>
+                <FormControl>
+                  <InputLabel id="month-select"> Anno </InputLabel>
+                  <Select
+                    sx={{ m: 1.5, minWidth: 220, border: "2px solid" }}
+                    value={year}
+                    variant='standard'
+                    color='primary'
+                    input={<BootstrapInput />}
+                    onChange={(e) => setYear(Number(e.target.value))}>
+                    <MenuItem value={0}><em>--Vuoto--</em></MenuItem>
+                    <MenuItem value={2023}>2023</MenuItem>
+                    <MenuItem value={2024}>2024</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
-            }
+            </>
+          }
+
+          {!isUser &&
             <Grid item>
-              <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  sx={{ borderRadius: "10px"}}
-                  endIcon={<Search/>}>
-                  <strong>CERCA</strong>
-              </Button>
-              <IconButton color="primary" onClick={clear}>
-                <ClearIcon/>
-              </IconButton>
-              </Grid>
+              <FormControlLabel
+                control={
+                  <Input
+                    startAdornment={"Address: "}
+                    id="address"
+                    value={addressValue}
+                    sx={{ color: "white", padding: "5px", minWidth: "350px" }}
+                    placeholder=" 0x00.."
+                    onChange={handleText} />
+                }
+                label="" />
             </Grid>
-          </form>
+          }
+          <Grid item>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={{ borderRadius: "10px" }}
+              endIcon={<Search />}>
+              <strong>CERCA</strong>
+            </Button>
+            <IconButton color="primary" onClick={clear}>
+              <ClearIcon />
+            </IconButton>
+          </Grid>
+        </Grid>
+      </form>
     );
 }

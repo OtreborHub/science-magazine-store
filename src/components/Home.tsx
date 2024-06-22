@@ -60,7 +60,8 @@ export default function Home() {
           paddingTop={"3rem"} 
           paddingBottom={"3rem"} 
           textAlign={"center"}
-          sx={{ cursor: 'default' }}>
+          color={"whitesmoke"}
+          sx={{ cursor: "default" }}>
           TECHNOLOGY INNOVATION
         </Typography>
 

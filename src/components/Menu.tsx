@@ -33,7 +33,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
         const customerResult = await readCustomer();
         setHasSubscription((customerResult[2]));
       } catch {
-        console.log("Errore durante la lettura dell'account cliente");
+        console.log("Error during reading customer data");
       }
     }
   
@@ -101,7 +101,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
               confirmButtonColor: "#3085d6"
             });
           } else {
-            console.log("Errore durante l'azione di prelievo");
+            console.log("Error during withdraw operation");
           }
         }
       })
@@ -134,7 +134,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
               confirmButtonColor: "#3085d6"
             });
           } else {
-            console.log("Errore durante l'azione di splitProfit");
+            console.log("Error during split profit operation");
           }
         }
       })
@@ -164,7 +164,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
               confirmButtonColor: "#3085d6"
             });
           } else {
-            console.log("Errore durante l'azione di aggiunta admin");
+            console.log("Error during add admin operation");
           }
         } else {
           swalError(ErrorMessage.IO, Action.ADD_ADMIN);
@@ -195,7 +195,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
               confirmButtonColor: "#3085d6"
             });
           } else {
-            console.log("Errore durante l'azione di revoca abbonamento");
+            console.log("Error during revoke subscribe operation ");
           }
         }
       })
@@ -267,7 +267,7 @@ export default function DropdownMenu({ connect: connectWallet }: NavbarProps) {
                     showCloseButton: true
                   });
                 } else {
-                  console.log("Errore durante l'operazione di donazione");
+                  console.log("Error during donation operation");
                 }
             } else {
               swalError(ErrorMessage.IF, Action.DONATION);

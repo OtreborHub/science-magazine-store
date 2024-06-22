@@ -73,9 +73,9 @@ export default function SimpleCard({address, title, release_date}: Magazine) {
               icon: "success",
               confirmButtonColor: "#3085d6",
             });
-            console.log("Magazine " + address + " rilasciato con successo");
+            console.log("Magazine " + address + " released successfully");
           }else{
-            console.log("Magazine non rilasciato");
+            console.log("Magazine not released");
           }
         } else {
           swalError(ErrorMessage.IO, Action.RELEASE_MAG)

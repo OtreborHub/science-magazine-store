@@ -53,7 +53,7 @@ export default function MainForm({singlePrice, annualPrice, lastMagazine: lastNu
       aria-label="purchase"
       value={radioValue}
       onChange={handleChange}
-      sx={{ marginLeft: "15%", marginRight: "15%" }}>
+      sx={{ marginLeft: "15%", marginRight: "15%", color: "whitesmoke"}} >
       <Box className="radio-option" textAlign={"center"} justifyContent={"space-between"}>
 
         <FormControlLabel
@@ -63,7 +63,6 @@ export default function MainForm({singlePrice, annualPrice, lastMagazine: lastNu
         <Typography
           variant="h5"
           fontFamily={"unset"}
-        // color={"black"}
         >
           {"Abbonamento annuale "}<br />
           {formatPrice(annualPrice) + " ETH"}
