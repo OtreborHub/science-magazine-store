@@ -1,7 +1,6 @@
 <h1>Science Magazine Store</h1>
-Science Magazine Store è una Dapp realizzata per Start2Impact University.
-
-Due smart contract Solidity, MagazineManager e MagazineManagerUtil, hanno lo scopo di gestire l'intero bundle di funzionalità disponibili per utenti ed amministratori mentre il front-end in React rende l'acquisto dei magazine semplice ed intuitivo.
+Science Magazine Store è una Dapp realizzata per Start2Impact University al fine di rappresentare l'applicativo dell'organizzazione Technology Innovation.
+Due smart contract Solidity, MagazineManager e MagazineManagerUtil, hanno lo scopo di gestire l'intero bundle di funzionalità disponibili per utenti ed amministratori mentre il front-end in React rende l'acquisto, la creazione e il rilascio dei magazine semplice ed intuitivo.
 
 <h2><b>Smart Contracts</b></h2>
 
